@@ -15,21 +15,15 @@ ENV BUILD_PACKAGES="\
         ca-certificates \
         openssl \
         bash \
-        fonts-noto \
-        libpng16-16 \
-        libfreetype6 \
-        libjpeg62-turbo \
         libgomp1 \
         python3 \
         python3-pip" \
     PIP_PACKAGES="\
         pyyaml \
         pymkl \
-        requests \
         pillow \
         Flask \
         numpy \
-        xgboost \
         tensorflow" \
     PYTHON_VERSION=3.6.4 \
     PATH=/usr/local/bin:$PATH \
@@ -66,7 +60,9 @@ RUN apt-get remove --purge --auto-remove -y ${BUILD_PACKAGES}; \
 ENV SERVER_HOST="0.0.0.0"
 ENV SERVER_PORT=5555
 
-COPY . .
+RUN mkdir /code
+WORKDIR /code
+ADD . /code/
 
 EXPOSE 5555
 
