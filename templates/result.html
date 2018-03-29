@@ -1,14 +1,18 @@
 <!doctype html>
 <body>
     <title> Rating Result </title>
-    <h1>Credit Rating:</h1>
-    {% if rating == "3" %}
-    <h2>Excellent: Zero Credit Risk, at an A level or above</h2>
-    {% elif rating == "2" %}
-    <h2>Good: Little Credit Risk, at an B level or above</h2>
-    {% elif rating == "1" %}
-    <h2>Mediocre: Fair Credit Risk, at an C level or above</h2>
+    <h1>Audit Rating:</h1>
+    {% if rating >= "90" %}
+    <h2>Excellent: Highly mature software compliance qualifications with solid financial data</h2>
+    <h1>No Audit recommended</h1>
+    {% elif rating >= "80" %}
+    <h2>Good: High to moderately mature software compliance qualifications with solid financial data</h2>
+    <h1>No Audit recommended</h1>
+    {% elif rating >= "70" %}
+    <h2>Mediocre: Moderate to low software compliance qualifications, financial data questionable</h2>
+    <h1>Borderline Audit candidate</h1>
     {% else %}
-    <h2>Poor: Bad Credit Risk, at an D level or below</h2>
+    <h2>Poor: Immature software compliance practices, financial data questionable</h2>
+    <h1>Audit Recommended</h1>
     {% endif %}
 </body>

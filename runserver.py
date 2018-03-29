@@ -32,8 +32,9 @@ def rate(args):
 @app.route('/rating_result')
 def rating_result():
     args = request.args.getlist('arg', type = float)
-    rating = rate(args)
-    return render_template('result.html', rating=rating)
+    compliance = request.args.get('compliance', default=0, type = int)
+    rating = 100 - int(compliance) - (5 * (3 - int(rate(args))))
+    return render_template('result.html', rating=str(rating))
 
 @app.route('/')
 @app.route('/home')

@@ -1,10 +1,73 @@
 <!doctype html>
 <head>
+    <script src="static/js/jquery-3.3.1.slim.min.js"></script>
     <script src="static/js/form.js"></script>
     <link href="static/css/form.css" rel="stylesheet">
 </head>
 <body>
     <title>Audit Questionnaire</title>
+    <h2>Software Compliance Practices and Maturity</h2>
+    <div id="complianceQuestions">
+        <h3>Governance</h3>
+        <label for="swcomp01">Is SAM a distinct organizational entity with clear accountability, defined roles, and established responsibilities? </label>
+        <br />
+        <select id="swcomp01" class="swquestion">
+            <option value="0">Yes, SAM is a specific, well-defined function within the organization.</option>
+            <option value="10">No, SAM is part of another function.</option>
+        </select>
+        <br />
+        <h3>Cost</h3>
+        <label for="swcomp02">Do you have the capability to measure and manage costs across a software asset’s complete lifecycle (forecast, procurement, deployment, maintenance, and decommission)?</label>
+        <br />
+        <select id="swcomp02" class="swquestion">
+            <option value="0">Yes, we maintain a mature SAM capability (in people, processes, and technologies) to ensure contract compliance—and avoid licensing penalties—throughout the software lifecycle, and to save money through software optimization.</option>
+            <option value="5">We have ad hoc SAM controls that mainly address compliance, with only limited focus on cost optimization.</option>
+            <option value="10">We do not have a proactive focus on SAM. </option>
+        </select>
+        <br />
+        <label for="swcomp03">When procuring software, do you evaluate existing and available software licenses within your organization? Do you validate the business need prior to initiating procurement?</label>
+        <br />
+        <select id="swcomp03" class="swquestion">
+            <option value="0">Yes, we maintain an active software inventory and establish the business case prior to making any purchase.</option>
+            <option value="10">No. While we have a procurement process for purchasing software, it is not integrated into our SAM program.</option>
+        </select>
+        <br />
+        <label for="swcomp04">In the last three years, has your organization experienced a compliance review from a software publisher?</label>
+        <br />
+        <select id="swcomp04" class="swquestion">
+            <option value="0">Yes, we experienced a software compliance review, and there were no findings of financial liability.</option>
+            <option value="5">Yes, we experienced an audit, and we had a financial liability as a result of the audit. </option>
+            <option value="10">No, we have not had any software audits. </option>
+        </select>
+        <br />
+        <h3>Compliance</h3>
+        <label for="swcomp05">How do you actively limit the business and legal risks related to non-compliance with software licenses?</label>
+        <br />
+        <select id="swcomp05" class="swquestion">
+            <option value="0">We have a mature SAM program that actively manages compliance.</option>
+            <option value="2">We have regularly scheduled and standardized point-in-time assessments to validate what we own and what we’re using. </option>
+            <option value="5">We perform ad hoc and/or informal point-in-time assessments, conducted either in-house or through outsourcing. </option>
+            <option value="10">We don’t proactively manage software license compliance.</option>
+        </select>
+        <br />
+        <label for="swcomp06">How does your organization integrate hardware configuration management into your software compliance environments?</label>
+        <br />
+        <select id="swcomp06" class="swquestion">
+            <option value="0">All hardware configuration projects include a component for software management within the project lifecycle.</option>
+            <option value="5">We assess software implementation after a hardware project has gone live and then make recommendations and changes as needed. </option>
+            <option value="10">We’re reactive with respect to software compliance, taking action only when a specific licensing requirement is detected. </option>
+        </select>
+        <br />
+        <h3>Efficiency</h3>
+        <label for="swcomp07">How is SAM executed across the enterprise—for example, throughout IT groups and operations? </label>
+        <br />
+        <select id="swcomp07" class="swquestion">
+            <option value="0">All existing SAM capabilities—including procurement, maintenance, and disposal—are centrally executed and managed. </option>
+            <option value="5">SAM is centrally supported; however, local groups are empowered to make their own decisions.</option>
+            <option value="10">Responsibilities, decisions, and capabilities related to SAM are distributed throughout the enterprise.</option>
+        </select>
+        <br />
+    </div>
     <h2>Financial Information</h2>
     <div id="financialQuestions">
         <label for="finarg01">Enter Ratio of Total Assets to Total Liabilities:</label>
@@ -47,6 +110,7 @@
         <input type="number" id="finarg19"><br />
         <label for="finarg20">Enter Operating Expenses/Sales</label>
         <input type="number" id="finarg20"><br />
-        <input id="submit_btn" type="submit" value="Submit" onclick="submitClicked();">
+        <br />
+        <input id="submit_btn" type="submit" value="Get Audit Score" onclick="submitClicked();">
     </div>
 </body>
