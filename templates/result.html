@@ -1,0 +1,14 @@
+<!doctype html>
+<body>
+    <title> Rating Result </title>
+    <h1>Credit Rating:</h1>
+    {% if rating == "3" %}
+    <h2>Excellent: Zero Credit Risk, at an A level or above</h2>
+    {% elif rating == "2" %}
+    <h2>Good: Little Credit Risk, at an B level or above</h2>
+    {% elif rating == "1" %}
+    <h2>Mediocre: Fair Credit Risk, at an C level or above</h2>
+    {% else %}
+    <h2>Poor: Bad Credit Risk, at an D level or below</h2>
+    {% endif %}
+</body>

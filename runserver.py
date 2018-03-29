@@ -22,12 +22,18 @@ def get_rating():
     args = request.args.getlist('arg', type = float)
     rate(args)
 
-@app.template_filter('rate')
+@app.route('/get_rating')
 def rate(args):
     if(len(args) == 21):
         return nn_predict.rate(args)
     else:
         return "-1"
+
+@app.route('/rating_result')
+def rating_result():
+    args = request.args.getlist('arg', type = float)
+    rating = rate(args)
+    return render_template('result.html', rating=rating)
 
 @app.route('/')
 @app.route('/home')
