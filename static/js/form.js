@@ -12,7 +12,7 @@ function submitClicked() {
         url += "arg=" + ($(elem_id).value || "0") + "&";
     }
     var sum = 0;
-    $("select.swquestion :selected").each(function() {
+    $("input[type=radio].swquestion:checked").each(function() {
         sum += parseInt(this.value);
     });
     url += "arg=1&compliance=" + sum.toString();

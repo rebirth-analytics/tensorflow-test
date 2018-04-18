@@ -13,3 +13,10 @@ input[type="submit"] {
     font-size: 20pt;
     font-weight: bold;
   }
+input[type="radio"] {
+    margin: 0px 5px;
+}
+
+p {
+    font-size: 14pt;
+}

@@ -2,6 +2,7 @@
 
 IMAGE_NAME = glenn_harper/rebirth-demo-flask:latest
 CONTAINER_NAME = rebirth-demo
+REPO_TAG = rebirth.azurecr.io/demo/flask-tensor:latest
 
 build:
 	sudo docker build -t $(IMAGE_NAME) .
@@ -22,3 +23,9 @@ shell:
 
 stop:
 	sudo docker stop $(IMAGE_NAME)
+
+tag:
+	sudo docker tag $(IMAGE_NAME) $(REPO_TAG)
+
+push:
+	sudo docker push $(REPO_TAG)
