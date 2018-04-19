@@ -9,12 +9,15 @@ function submitClicked() {
     for(i = 1; i <= 20; i++) {
         var num = ("0" + i).slice(-2);
         elem_id = "#finarg" + num;
-        url += "arg=" + ($(elem_id).value || "0") + "&";
+        url += "arg=" + ($(elem_id).val() || "0") + "&";
     }
     var sum = 0;
     $("input[type=radio].swquestion:checked").each(function() {
         sum += parseInt(this.value);
     });
     url += "arg=1&compliance=" + sum.toString();
+    url += "&officeRatio=" + ($("#officeLicenses").val() / $("#officeInstances").val() ).toString();
+    url += "&windowsRatio=" + ($("#windowsLicenses").val() / $("#windowsInstances").val() ).toString();
+    url += "&SQLRatio=" + ($("#SQLLicenses").val() / $("#SQLInstances").val() ).toString();
     window.location.assign(url);
 }

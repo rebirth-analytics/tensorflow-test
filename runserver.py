@@ -33,8 +33,15 @@ def rate(args):
 def rating_result():
     args = request.args.getlist('arg', type = float)
     compliance = request.args.get('compliance', default=0, type = int)
-    rating = 100 - int(compliance) - (5 * (3 - int(rate(args))))
-    return render_template('result.html', rating=str(rating))
+    office_ratio = request.args.get('officeRatio', default=0, type = float)
+    windows_ratio = request.args.get('windowsRatio', default=0, type = float)
+    sql_ratio = request.args.get('SQLRatio', default=0, type = float)
+    win_factor = (1 - windows_ratio) * 10
+    office_factor = (1 - office_ratio) * 10
+    sql_factor = (1 - sql_ratio) * 10
+    rating = 100 - int(compliance) - (5 * (3 - int(rate(args)))) - win_factor - office_factor - sql_factor
+    data = {'rating': str(rating), 'windows_ratio': windows_ratio, 'sql_ratio': sql_ratio, 'office_ratio': office_ratio}
+    return render_template('result.html', data=data)
 
 @app.route('/')
 @app.route('/home')

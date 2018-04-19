@@ -1,18 +1,32 @@
 <!doctype html>
+<head>
+    <script src="static/js/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://www.flotcharts.org/flot/jquery.flot.js"></script>
+    <script type="text/javascript">
+       var sql_ratio = {{ data.sql_ratio|tojson }};
+       var windows_ratio = {{ data.windows_ratio|tojson }};
+       var office_ratio = {{ data.office_ratio|tojson }};
+   </script>
+   <script type="text/javascript" src="static/js/result.js"></script>
+    <link href="static/css/form.css" rel="stylesheet">
+</head>
 <body>
+    <img src="static/img/rebirth_logo.png">
     <title> Rating Result </title>
-    <h1>Deployment Practices Rating:</h1>
-    {% if rating >= "90" %}
+    <h1>SAM-Deployment Rating:</h1> 
+    {% if data.rating >= "90" %}
     <h2>Excellent: Highly mature software compliance qualifications with solid financial data</h2>
     <h1>No followup necessary</h1>
-    {% elif rating >= "80" %}
+    {% elif data.rating >= "80" %}
     <h2>Good: High to moderately mature software compliance qualifications with solid financial data</h2>
     <h1>No followup necessary</h1>
-    {% elif rating >= "70" %}
+    {% elif data.rating >= "70" %}
     <h2>Mediocre: Moderate to low software compliance qualifications, financial data questionable</h2>
     <h1>Potential followup candidate</h1>
     {% else %}
     <h2>Poor: Immature software compliance practices, financial data questionable</h2>
     <h1>Further Assistance Recommended</h1>
     {% endif %}
+    <h4>Number of Licenses/Instances Found</h4>
+    <div id="flotMAP" style="width:400px;height:200px"></div>
 </body>

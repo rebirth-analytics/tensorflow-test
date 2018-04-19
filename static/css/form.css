@@ -20,3 +20,8 @@ input[type="radio"] {
 p {
     font-size: 14pt;
 }
+
+img {
+    width: 300px;
+    height: 80px;
+}
