@@ -6,14 +6,30 @@
        var sql_ratio = {{ data.sql_ratio|tojson }};
        var windows_ratio = {{ data.windows_ratio|tojson }};
        var office_ratio = {{ data.office_ratio|tojson }};
+       var rating = {{ data.rating|tojson }};
    </script>
    <script type="text/javascript" src="static/js/result.js"></script>
     <link href="static/css/form.css" rel="stylesheet">
 </head>
 <body>
-    <img src="static/img/rebirth_logo.png">
+    <script>
+        function setBarPosition() {
+            var elem = document.getElementById('frontBar');
+            elem.style.left = (4 * rating).toString() + 'px';
+        }
+        window.onload = setBarPosition;
+    </script>
+    <img id="logo" src="static/img/rebirth_logo.png">
     <title> Rating Result </title>
     <h1>SAM-Deployment Rating:</h1> 
+    <div id="heatBar">
+        <img id="backBar" src="static/img/heat_bar.jpg">
+        <img id="frontBar" src="static/img/black_bar.jpg">
+    </div>
+    <div id="barCaptions">
+        <text id="leftCaption">Poor</text>
+        <text id="rightCaption">Excellent</text>
+    </div>
     {% if data.rating >= "90" %}
     <h2>Excellent: Highly mature software compliance qualifications with solid financial data</h2>
     <h1>No followup necessary</h1>
