@@ -24,10 +24,11 @@ ENV BUILD_PACKAGES="\
         pillow \
         Flask \
         numpy \
+        xlrd \
         tensorflow" \
-    PYTHON_VERSION=3.6.4 \
+    PYTHON_VERSION=3.6.5 \
     PATH=/usr/local/bin:$PATH \
-    PYTHON_PIP_VERSION=9.0.1 \
+    PYTHON_PIP_VERSION=18.0 \
     LANG=C.UTF-8
 
 RUN set -ex; 

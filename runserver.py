@@ -4,10 +4,19 @@ This script runs the FlaskWebProject application using a development server.
 
 from os import environ
 from flask import Flask, jsonify, request, render_template
+from xlrd import open_workbook, XLRDError
 from lib import nn_predict
  
 app = Flask(__name__)
 
+def test_book(filename):
+    try:
+        open_workbook(filename)
+    except XLRDError:
+        return False
+    else:
+        return True
+        
 def get_json_response(rows):
     response = jsonify(result = rows)
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -24,10 +33,12 @@ def get_rating():
 
 @app.route('/get_rating')
 def rate(args):
+    """
     if(len(args) == 21):
         return nn_predict.rate(args)
     else:
-        return "-1"
+    """
+    return "-1 NOT AVAILABLE"
 
 @app.route('/rating_result')
 def rating_result():
@@ -39,14 +50,50 @@ def rating_result():
     win_factor = (1 - windows_ratio) * 10
     office_factor = (1 - office_ratio) * 10
     sql_factor = (1 - sql_ratio) * 10
-    rating = 100 - int(compliance) - (5 * (3 - int(rate(args)))) - win_factor - office_factor - sql_factor
-    data = {'rating': str(rating), 'windows_ratio': windows_ratio, 'sql_ratio': sql_ratio, 'office_ratio': office_ratio}
+    #for input in test_inputs.in_data:
+        #print("""Company: {0}, Rating: {1}""".format(input['company_name'], nn_predict.rateFromDict(input)))
+    #rating = 100 - int(compliance) - (5 * (3 - int(rate(args)))) - win_factor - office_factor - sql_factor
+    #data = {'rating': str(rating), 'windows_ratio': windows_ratio, 'sql_ratio': sql_ratio, 'office_ratio': office_ratio}
+    data = {'rating': str(90), 'windows_ratio': windows_ratio, 'sql_ratio': sql_ratio, 'office_ratio': office_ratio}
     return render_template('result.html', data=data)
+    
+@app.route('/rate_excel', methods = ['GET', 'POST'])
+def rate_excel():
+    data = {'rating': '0', 'test': ''}
+    if request.method == 'POST':
+        f = request.files['file']
+        f.save(f.filename)
+        wb = open_workbook(f.filename)
+        test_string = ''
+        s = wb.sheet_by_index(0)
+        col_names = s.row(0)
+        max_row = s.nrows
+        row_count = max_row - 1
+        rating = 0
+        for row in range(1, max_row):
+            row_dict = {}
+            for name, col in zip(col_names, range(s.ncols)):
+                value  = (s.cell(row,col).value)
+                try : value = float(value)
+                except : pass
+                row_dict[name.value] = value
+            try: rating += int(nn_predict.rateFromDict(row_dict))
+            except : 
+                print("Error calling nn_predict.rateFromDict()")
+                pass
+        data = {'rating': str(float(rating / row_count)), 'test': test_string}
+        return render_template('excel_result.html', data=data)
+
+def home():
+    return render_template('form.html')
 
 @app.route('/')
 @app.route('/home')
-def home():
-    return render_template('form.html')
+@app.route('/excel')
+@app.route('/batch_rating')
+def batch_rating():
+    return render_template('batch_rating.html')
+
 
 if __name__ == '__main__':
     HOST = environ.get('SERVER_HOST', '0.0.0.0')

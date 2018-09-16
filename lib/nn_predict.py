@@ -19,6 +19,9 @@ def load_graph():
 
 def rate(arr):
     rating = -1
+    export_dir = './tmp/'
+    checkpoint_path = tf.train.latest_checkpoint(export_dir)
+    saver = tf.train.import_meta_graph(checkpoint_path + ".meta", import_scope=None)
     with tf.Session() as sess:
         saver.restore(sess, checkpoint_path)
         output = sess.run("predict/prediction:0", feed_dict={"predict/X:0": [arr]})

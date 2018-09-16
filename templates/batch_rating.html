@@ -1,0 +1,18 @@
+<!doctype html>
+<head>
+    <script src="static/js/jquery-3.3.1.slim.min.js"></script>
+    <script src="static/js/form.js"></script>
+    <link href="static/css/form.css" rel="stylesheet">
+</head>
+<body>
+    <img id="logo" src="static/img/rebirth_logo.png" >
+    <form action="/rate_excel" method="POST" enctype="multipart/form-data">
+        <div>
+            <label for="file">Choose file to upload</label>
+            <input type="file" id="file" name="file"> 
+        </div>
+        <div>
+            <button>Submit</button>
+        </div>
+    </form>
+</body>

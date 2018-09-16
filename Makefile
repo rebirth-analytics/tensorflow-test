@@ -19,7 +19,7 @@ inspect:
 	sudo docker inspect $(IMAGE_NAME)
 
 shell: 
-	sudo docker exec -it $(IMAGE_NAME) /bin/shell
+	sudo docker exec -it $(CONTAINER_NAME) /bin/sh
 
 stop:
 	sudo docker stop $(IMAGE_NAME)
