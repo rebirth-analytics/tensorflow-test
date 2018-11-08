@@ -26,9 +26,9 @@ ENV BUILD_PACKAGES="\
         numpy \
         xlrd \
         tensorflow" \
-    PYTHON_VERSION=3.6.5 \
+    PYTHON_VERSION=3.7.1 \
     PATH=/usr/local/bin:$PATH \
-    PYTHON_PIP_VERSION=18.0 \
+    PYTHON_PIP_VERSION=18.1 \
     LANG=C.UTF-8
 
 RUN set -ex; 

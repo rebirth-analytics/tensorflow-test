@@ -53,10 +53,14 @@ def ratingNumToGrade(rating):
         return "SUB D"
 
 def rateFromDict(dict):
+    int_expense = dict['interestExpense']
+    if int_expense < 100:
+        int_expense = 100
+        
     totalRatio = dict['totalAssets'] / dict['totalLiabilities']
     currentRatio = dict['currentAssets'] / dict['currentLiabilities']
     equityAssetRatio = (dict['shareholderEquity'] + dict['longTermDebt'] ) / dict['fixedAssets']
-    timesInterestEarned = dict['earningPreInterestTax'] / dict['interestExpense']
+    timesInterestEarned = dict['earningPreInterestTax'] / int_expense
     incomeCapexRatio = (dict['netIncome'] + dict['depreciation']) / (dict['capEx'] + dict['inventoryChange'])
     debtIncomeRatio = dict['totalDebt'] / dict['netIncome']
     expenseSalesRatio = dict['operatingExpense'] / dict['sales']
