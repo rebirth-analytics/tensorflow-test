@@ -1,0 +1,43 @@
+<!doctype html>
+<head>
+    <script src="static/js/jquery-3.3.1.slim.min.js"></script>
+    <script type="text/javascript">
+       var rating = {{ data.rating|tojson }};
+   </script>
+    <link href="static/css/form.css" rel="stylesheet">
+</head>
+<body>
+    <script>
+        function setBarPosition() {
+            var elem = document.getElementById('frontBar');
+            elem.style.left = (40 * rating).toString() + 'px';
+        }
+        window.onload = setBarPosition;
+    </script>
+    <img id="logo" src="static/img/rebirth_logo.png">
+    <title> Rating Result </title>
+    <h1>Rating for {{data.company}} ({{ data.symbol }})</h1>
+    <div id="heatBar">
+        <img id="backBar" src="static/img/heat_bar.jpg">
+        <img id="frontBar" src="static/img/black_bar.jpg">
+    </div>
+    <div id="barCaptions">
+        <text id="leftCaption">Poor</text>
+        <text id="rightCaption">Excellent</text>
+    </div>
+    <h2>Rating: {{ data.rating }}</h2>
+    <h3>Industry Average Rating: 4.5</h3>
+    {% if data.rating >= "7" %}
+    <h2>Excellent</h2>
+    <h1></h1>
+    {% elif data.rating >= "4" %}
+    <h2>Good</h2>
+    <h1></h1>
+    {% elif data.rating >= "1" %}
+    <h2>Mediocre: Moderate risk</h2>
+    <h1></h1>
+    {% else %}
+    <h2>Poor: Very risky collection of credit</h2>
+    <h1></h1>
+    {% endif %}
+</body>

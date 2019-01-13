@@ -40,6 +40,25 @@ def rate(args):
     """
     return "-1 NOT AVAILABLE"
 
+@app.route('/rate_symbol')
+def rate_symbol():
+    """
+        Rates latest data from yahoo finance for given stock symbol
+    """
+    data = {'rating': '0', 'test': ''}
+    symbol = request.args.get('symbol', default='AAPL', type = str)
+    rating = 0
+    company = "No Financial Data Available"
+    try: 
+        rating = int(nn_predict.getRatingFor(symbol))
+        company = "Company Name Not Found"
+        company = nn_predict.getCompanyName(symbol)
+    except : 
+        print("Error calling nn_predict.getRatingFor()")
+        pass
+    data = {'rating': str(rating), 'symbol': symbol, 'company': company, 'test': ''}
+    return render_template('symbol_result.html', data=data)
+
 @app.route('/rating_result')
 def rating_result():
     args = request.args.getlist('arg', type = float)

@@ -25,8 +25,11 @@ ENV BUILD_PACKAGES="\
         Flask \
         numpy \
         xlrd \
-        tensorflow" \
-    PYTHON_VERSION=3.7.1 \
+        tensorflow \
+        pandas \
+        requests \
+        yahoofinancials" \
+    PYTHON_VERSION=3.7.2 \
     PATH=/usr/local/bin:$PATH \
     PYTHON_PIP_VERSION=18.1 \
     LANG=C.UTF-8
