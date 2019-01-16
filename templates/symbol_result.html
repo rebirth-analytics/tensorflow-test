@@ -26,18 +26,17 @@
         <text id="rightCaption">Excellent</text>
     </div>
     <h2>Rating: {{ data.rating }}</h2>
-    <h3>Industry Average Rating: 4.5</h3>
-    {% if data.rating >= "7" %}
+    <h3>Industry Average Rating for {{data.industry}}: {{data.average}}</h3>
+    {% if data.rating == "10" %}
+    <h2>Outstanding: Highest rating possible</h2>
+    {% elif data.rating >= "7" %}
     <h2>Excellent</h2>
-    <h1></h1>
     {% elif data.rating >= "4" %}
     <h2>Good</h2>
-    <h1></h1>
     {% elif data.rating >= "1" %}
     <h2>Mediocre: Moderate risk</h2>
-    <h1></h1>
     {% else %}
     <h2>Poor: Very risky collection of credit</h2>
-    <h1></h1>
     {% endif %}
+    <h1></h1>
 </body>

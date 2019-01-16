@@ -49,14 +49,18 @@ def rate_symbol():
     symbol = request.args.get('symbol', default='AAPL', type = str)
     rating = 0
     company = "No Financial Data Available"
+    average = 0
+    industry = "Unknown"
     try: 
         rating = int(nn_predict.getRatingFor(symbol))
         company = "Company Name Not Found"
         company = nn_predict.getCompanyName(symbol)
+        industry = nn_predict.getIndustryFor(symbol)
+        average = nn_predict.getAverageFor(symbol)
     except : 
         print("Error calling nn_predict.getRatingFor()")
         pass
-    data = {'rating': str(rating), 'symbol': symbol, 'company': company, 'test': ''}
+    data = {'rating': str(rating), 'symbol': symbol, 'company': company, 'test': '', 'industry': industry, 'average': average}
     return render_template('symbol_result.html', data=data)
 
 @app.route('/rating_result')
