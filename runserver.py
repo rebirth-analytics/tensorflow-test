@@ -6,6 +6,7 @@ from os import environ
 from flask import Flask, jsonify, request, render_template
 from xlrd import open_workbook, XLRDError
 from lib import nn_predict
+from lib import company_data
  
 app = Flask(__name__)
 
@@ -52,11 +53,11 @@ def rate_symbol():
     average = 0
     industry = "Unknown"
     try: 
-        rating = int(nn_predict.getRatingFor(symbol))
+        rating = int(company_data.getRatingFor(symbol))
         company = "Company Name Not Found"
-        company = nn_predict.getCompanyName(symbol)
-        industry = nn_predict.getIndustryFor(symbol)
-        average = nn_predict.getAverageFor(symbol)
+        company = company_data.getCompanyName(symbol)
+        industry = company_data.getIndustryFor(symbol)
+        average = company_data.getAverageFor(symbol)
     except : 
         print("Error calling nn_predict.getRatingFor()")
         pass

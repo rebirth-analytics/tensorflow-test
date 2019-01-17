@@ -1,11 +1,8 @@
 from __future__ import print_function
 import tensorflow as tf
 import numpy as np
-#import lib.test_inputs as test_inputs
-import pandas as pd
+import lib.test_inputs as test_inputs
 
-companies_df = pd.read_csv('lib/secwiki_tickers.csv')
-averages_df = pd.read_csv('lib/industry_averages.csv')
 """Load model from export_dir, predict on input data, expected output is 5."""
 export_dir = './tmp/'
 checkpoint_path = tf.train.latest_checkpoint(export_dir)
@@ -22,15 +19,18 @@ def load_graph():
     return ret_list
 
 def rate(arr):
-    rating = -1
-    export_dir = './tmp/'
-    checkpoint_path = tf.train.latest_checkpoint(export_dir)
-    saver = tf.train.import_meta_graph(checkpoint_path + ".meta", import_scope=None)
-    with tf.Session() as sess:
-        saver.restore(sess, checkpoint_path)
-        output = sess.run("predict/prediction:0", feed_dict={"predict/X:0": [arr]})
-        rating = np.asscalar(output[0])
-    return str(rating)
+    try:
+        rating = -1
+        export_dir = './tmp/'
+        checkpoint_path = tf.train.latest_checkpoint(export_dir)
+        saver = tf.train.import_meta_graph(checkpoint_path + ".meta", import_scope=None)
+        with tf.Session() as sess:
+            saver.restore(sess, checkpoint_path)
+            output = sess.run("predict/prediction:0", feed_dict={"predict/X:0": [arr]})
+            rating = np.asscalar(output[0])
+        return str(rating)
+    except Exception as e:
+        print(str(e))
 
 def ratingNumToGrade(rating):
     if(rating == 10):
@@ -63,25 +63,6 @@ def RepresentsInt(s):
     except ValueError:
         return False
 
-def getAverageFor(symbol):
-    df = companies_df[companies_df.Ticker == symbol]
-    if not df.empty:
-        industry = df.iloc[0].Industry
-        return averages_df[averages_df.Industry == industry].iloc[0].Rating
-    return "Industry Not Found"
-
-def getIndustryFor(symbol):
-    df = companies_df[companies_df.Ticker == symbol]
-    if not df.empty:
-        return df.iloc[0].Industry
-    return "Ticker Not Found"
-
-def getRatingFor(symbol):
-    df = companies_df[companies_df.Ticker == symbol]
-    if not df.empty:
-        return df.iloc[0].Rating
-    return -1
-
 def pullDataFor(symbol):
     """
         run quarterly over a set of tickers to update current ratings for public companies
@@ -99,15 +80,15 @@ def pullDataFor(symbol):
 
     fin_stats_dict = fin_dict['quoteSummary']['result'][0]['financialData']
     yahoo_balance_url="https://query2.finance.yahoo.com/v10/finance/quoteSummary/{0}?modules=balanceSheetHistoryQuarterly".format(symbol)
-    b_history = requests.get(yahoo_balance_url).json()['quoteSummary']['result'][0]['balanceSheetHistory']['balanceSheetStatements']
+    b_history = requests.get(yahoo_balance_url).json()['quoteSummary']['result'][0]['balanceSheetHistoryQuarterly']['balanceSheetStatements']
     if len(b_history) < 1 or 'totalCurrentLiabilities' not in b_history[0]:
         return -1
 
     b_dict = b_history[0]
     yahoo_income_url="https://query2.finance.yahoo.com/v10/finance/quoteSummary/{0}?modules=incomeStatementHistoryQuarterly".format(symbol)
-    income_dict = requests.get(yahoo_income_url).json()['quoteSummary']['result'][0]['incomeStatementHistory']['incomeStatementHistory'][0]
+    income_dict = requests.get(yahoo_income_url).json()['quoteSummary']['result'][0]['incomeStatementHistoryQuarterly']['incomeStatementHistory'][0]
     yahoo_cash_url="https://query2.finance.yahoo.com/v10/finance/quoteSummary/{0}?modules=cashflowStatementHistoryQuarterly".format(symbol)
-    cash_dict = requests.get(yahoo_cash_url).json()['quoteSummary']['result'][0]['cashflowStatementHistory']['cashflowStatements'][0]
+    cash_dict = requests.get(yahoo_cash_url).json()['quoteSummary']['result'][0]['cashflowStatementHistoryQuarterly']['cashflowStatements'][0]
     x_int = lambda d, k: 0 if k not in d or d[k] is None else int(d[k]) / scaling_factor
     data_dict['totalDebt'] = int(fin_stats_dict['totalDebt']['raw'] / scaling_factor)
     data_dict['totalLiabilities'] = int(b_dict['totalLiab']['raw']) / scaling_factor
@@ -179,34 +160,7 @@ def rateFromDict(dict):
         timesInterestEarned, incomeCapexRatio, debtIncomeRatio, expenseSalesRatio]
     return rate(arr)
 
-def getCompanyName(symbol):
-    test = companies_df[companies_df.Ticker==symbol]
-    if not (test.empty):
-        return list(test.Name.values)[0]
-    return ""
-
 if __name__ == '__main__':
     #for input in test_inputs.in_data:
         #print("""Company: {0}, Rating: {1}""".format(input['company_name'], rateFromDict(input)))
-    this_symbol = ""
-    """
-    bad_co_list = [ 
-        "ACEL"]
-    for co in bad_co_list:
-        this_symbol = co
-        this_rating = int(getRatingFor(co))
-    """
-    for i, row in companies_df.iterrows():
-        current_progress = 3380
-        if i < current_progress:
-            continue
-        this_symbol = row['Ticker']
-        if row['Rating'] == -1:
-            try: 
-                rating = int(pullDataFor(this_symbol))
-                companies_df.at[i,'Rating'] = rating
-            except : 
-                pass
-        if  i > current_progress:
-            print("writing to row {}".format(str(i)))
-            companies_df.to_csv('public_ratings.csv')
+    print("not supported")
