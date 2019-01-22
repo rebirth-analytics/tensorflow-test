@@ -57,9 +57,16 @@ def rate_symbol():
         company = "Company Name Not Found"
         company = company_data.getCompanyName(symbol)
         industry = company_data.getIndustryFor(symbol)
-        average = company_data.getAverageFor(symbol)
     except : 
-        print("Error calling nn_predict.getRatingFor()")
+        print("Error calling company_data.getRatingFor()")
+        pass
+    try: 
+        if industry is not None and str(industry) != 'nan' and industry != "Unknown":
+            average = company_data.getAverageFor(symbol)
+        else:
+            industry = "(Unlisted)"
+    except : 
+        print("Error calling company_data.getAverageFor()")
         pass
     data = {'rating': str(rating), 'symbol': symbol, 'company': company, 'test': '', 'industry': industry, 'average': average}
     return render_template('symbol_result.html', data=data)

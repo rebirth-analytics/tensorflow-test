@@ -4,7 +4,7 @@
     <script type="text/javascript">
        var rating = {{ data.rating|tojson }};
    </script>
-    <link href="static/css/form.css" rel="stylesheet">
+    <link href="static/css/result.css" rel="stylesheet">
 </head>
 <body>
     <script>
@@ -14,6 +14,11 @@
         }
         window.onload = setBarPosition;
     </script>
+    <form method="get" action="/rate_symbol">
+        <label>Get Rating For:</label>
+        <input type="text" name="symbol">
+        <button type="submit"></button>
+    </form>
     <img id="logo" src="static/img/rebirth_logo.png">
     <title> Rating Result </title>
     <h1>Rating for {{data.company}} ({{ data.symbol }})</h1>
@@ -31,8 +36,10 @@
     <h2>Outstanding: Highest rating possible</h2>
     {% elif data.rating >= "7" %}
     <h2>Excellent</h2>
-    {% elif data.rating >= "4" %}
+    {% elif data.rating >= "6" %}
     <h2>Good</h2>
+    {% elif data.rating >= "4" %}
+    <h2>Passable, but slightly below average</h2>
     {% elif data.rating >= "1" %}
     <h2>Mediocre: Moderate risk</h2>
     {% else %}

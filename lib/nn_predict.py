@@ -32,6 +32,23 @@ def rate(arr):
     except Exception as e:
         print(str(e))
 
+def rate_arrays(arr_list):
+    rating_list = []
+    try:
+        rating = -1
+        export_dir = './tmp/'
+        checkpoint_path = tf.train.latest_checkpoint(export_dir)
+        saver = tf.train.import_meta_graph(checkpoint_path + ".meta", import_scope=None)
+        with tf.Session() as sess:
+            saver.restore(sess, checkpoint_path)
+            for arr in arr_list:
+                output = sess.run("predict/prediction:0", feed_dict={"predict/X:0": [arr]})
+                rating = np.asscalar(output[0])
+                rating_list.add(str(rating))
+        return rating_list
+    except Exception as e:
+        print(str(e))
+
 def ratingNumToGrade(rating):
     if(rating == 10):
         return "AAA" 
@@ -63,6 +80,15 @@ def RepresentsInt(s):
     except ValueError:
         return False
 
+def getIndustryFor(symbol):
+    import requests
+    yahoo_url="https://query2.finance.yahoo.com/v10/finance/quoteSummary/{0}?modules=assetProfile".format(symbol)
+    profile_dict = requests.get(yahoo_url).json()
+    if profile_dict['quoteSummary']['error'] is not None or len(profile_dict['quoteSummary']['result']) < 1:
+        return None
+
+    return profile_dict['quoteSummary']['result'][0]['assetProfile']['industry']
+    
 def pullDataFor(symbol):
     """
         run quarterly over a set of tickers to update current ratings for public companies
