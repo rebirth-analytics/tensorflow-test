@@ -1,0 +1,5 @@
+*.csv
+*.ods
+tmp/*
+tmp_old/*
+*.DS_Store
