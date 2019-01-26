@@ -8,17 +8,28 @@
 </head>
 <body>
     <script>
+        function handle(key){ 
+            console.log("keyup");
+            if (key==="Enter"){
+                console.log("Enter keyup");
+                var newTicker = document.getElementById("tickerInput").value.toUpperCase() + document.getElementById("country").value;
+                window.location.assign("/rate_symbol?symbol=" + newTicker);
+            }
+        }
         function setBarPosition() {
             var elem = document.getElementById('frontBar');
             elem.style.left = (40 * rating).toString() + 'px';
         }
         window.onload = setBarPosition;
     </script>
-    <form method="get" action="/rate_symbol">
+    <div id="ticker">
         <label>Get Rating For:</label>
-        <input type="text" name="symbol">
-        <button type="submit"></button>
-    </form>
+        <input type="text" id="tickerInput" onkeyup="handle(event.key)">
+        <select id="country">
+            <option value="">US</option>
+            <option value=".L">UK</option>
+        </select>
+    </div>
     <img id="logo" src="static/img/rebirth_logo.png">
     <title> Rating Result </title>
     <h1>Rating for {{data.company}} ({{ data.symbol }})</h1>
