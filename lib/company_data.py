@@ -16,11 +16,14 @@ def getCompanyName(symbol):
         return list(test.Name.values)[0]
     return ""
 
+def getIndustryAveragesDF(df):
+    return df.groupby(['Industry'])['Rating'].agg(lambda x: x.unique().mean())
+
 def getAverageFor(symbol):
     df = cache_df[cache_df.Ticker == symbol]
     if not df.empty:
         industry = df.iloc[0].Industry
-        return averages_df[averages_df.Industry == industry].iloc[0].Rating
+        return averages_df[averages_df.Industry == industry].iloc[0].CurrentRating
     return "Industry Not Found"
 
 def getIndustryFor(symbol):
