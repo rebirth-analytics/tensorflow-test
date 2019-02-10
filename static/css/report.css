@@ -1,0 +1,86 @@
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+body {
+    font-family: Verdana, Geneva, sans-serif;
+    display: block;
+    font-size: 16pt;
+}
+body div {
+    display: flex;
+    clear: left;
+    float: left;
+}
+body div#header {
+    height: 80px;
+    width: 100%;
+}
+body div#header img{
+    width: 200px;
+}
+body div#header div#headerRight {
+    display: table-cell;
+}
+body div#header div#headerRight div{
+    display: block;
+    width: 600px;
+    height: 40px;
+    text-align: right;
+    line-height: 40px;
+}
+body div#companyInfo h1 {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-weight: normal;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+body div#companyInfo {
+    display: table-cell;
+    height: 190px;
+    width: 800px;
+    justify-content: center;
+    align-items: center;
+    background-color: rebeccapurple;
+    color: white;
+}
+body div#companyInfo div{
+    width: 800px;
+    display: block;
+    text-align: center;
+}
+div#rating{
+    display: table-cell;
+    margin-top: 16px;
+    margin-left: 50px;
+    width: 700px;
+    border-radius: 25px;
+    border: 1px solid slateblue;
+}
+div#heatBar {
+    align-items: center;
+    height: 50px;
+}
+div#heatBar img#backBar {
+    height: 40px;
+    width: 400px;
+    z-index: -1;
+}
+div#heatBar img#frontBar {
+    position: absolute;
+    top: 389px;
+    z-index: 1;
+    height: 50px;
+}
+div#barCaptions {
+    height: 14px;
+    font-size: 12px;
+}
+div#barCaptions text#leftCaption {
+    left: 5px;
+    margin-right: 334px;
+}

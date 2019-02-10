@@ -4,7 +4,7 @@
     <script type="text/javascript">
        var rating = {{ data.current_rating|tojson }};
    </script>
-    <link href="static/css/result.css" rel="stylesheet">
+    <link href="static/css/report.css" rel="stylesheet">
 </head>
 <body>
     <script>
@@ -14,18 +14,49 @@
         }
         window.onload = setBarPosition;
     </script>
-    <img id="logo" src="static/img/rebirth_logo.png">
-    <title> Rating Result </title>
-    <h1>Rating for {{data.company_name}}</h1>
-    <div id="heatBar">
-        <img id="backBar" src="static/img/heat_bar.jpg">
-        <img id="frontBar" src="static/img/black_bar.jpg">
+    <div id="header">
+        <img id="logo" src="static/img/rebirth_title.png">
+        <div id="headerRight">
+            <div>Corporate Financial Health Report</div>
+            <div>Dated: {{data.date_generated}}</div>
+        </div>
     </div>
-    <div id="barCaptions">
-        <text id="leftCaption">Poor</text>
-        <text id="rightCaption">Excellent</text>
+    <div id="companyInfo">
+        <div><h1>{{data.company_name}}</h1></div>
+        <div>
+            <text><b>Address:</b> {{data.address}}</text>
+        </div>
+        <div>
+            <text><b>Report Period:</b> {{data.report_period}}</text>
+        </div>
+        <div>
+            {% if data.is_public == 0 %}
+            <text><b>Status: </b> Private Company</text>
+            {% else %}
+            <text><b>Status: </b> Public Company</text>
+            {% endif %}
+        </div>
+        <div>
+            <text><b>Industry Sector: </b> {{data.industry}}</text>
+        </div>
     </div>
-    <h2>Rating: {{ data.current_rating }}</h2>
+    <div id="rating">
+        <div>
+            <h2>Corporate Financial Health Dashboard</h2>
+        </div>
+        <div id="heatBar">
+            <img id="backBar" src="static/img/heat_bar.jpg">
+            <img id="frontBar" src="static/img/black_bar.jpg">
+        </div>
+        <div id="barCaptions">
+            <text id="leftCaption">Poor</text>
+            <text id="rightCaption">Excellent</text>
+        </div>
+        <div>
+            <h2>Rating: {{ data.current_rating }}</h2>
+        </div>
+    </div>
+    <div>
     <h3>Industry Average Rating for {{data.industry}}: {{data.industry_rating}}</h3>
     {% if data.current_rating == 10 %}
     <h2>Outstanding: Highest rating possible</h2>
@@ -41,4 +72,5 @@
     <h2>Poor: Very risky collection of credit</h2>
     {% endif %}
     <h1></h1>
+    </div>
 </body>

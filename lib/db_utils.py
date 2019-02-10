@@ -28,10 +28,7 @@ def is_uuid(uuid):
     return UUID_PATTERN.match(uuid)
 
 def locate_report_data(uuid):
-    # Read data
     cursor.execute("SELECT * FROM reports WHERE uuid = UuidToBin('{0}') ;".format(uuid))
     row = cursor.fetchone()
-    print("report row:")
-    print(row)
     return row
 
