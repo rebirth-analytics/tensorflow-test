@@ -3,10 +3,11 @@ This script runs the FlaskWebProject application using a development server.
 """
 
 from os import environ
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, abort
 from xlrd import open_workbook, XLRDError
 from lib import nn_predict
 from lib import company_data
+from lib import db_utils
  
 app = Flask(__name__)
 
@@ -26,6 +27,14 @@ def get_json_response(rows):
 @app.route('/get_test_result')
 def test_result():
     return get_json_response(nn_predict.load_graph())
+
+@app.route('/locate')
+def locate():
+    uuid = request.args.get('record', default='', type = str)
+    if(db_utils.is_uuid(uuid)):
+        data = db_utils.locate_report_data(uuid)
+        return render_template('rating_report.html', data=data)
+    return abort(404)
 
 @app.route('/get_rating')
 def get_rating():

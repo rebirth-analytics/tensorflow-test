@@ -48,7 +48,7 @@ def generate_ratings(source_df):
     """
     rows_list = []
     for i, row in source_df.iterrows():
-        current_progress = 5620
+        current_progress = 5638
         if i < current_progress:
             continue
         ticker = row['Ticker']
@@ -68,8 +68,23 @@ def generate_ratings(source_df):
         rows_list.append(dict1)
 
     out_df = pd.DataFrame(rows_list, columns=['Ticker', 'Name', 'Rating', 'Industry'])  
-    out_df.to_csv('A_Ratings_20190121.csv')
+    out_df.to_csv('A_Ratings_20190124.csv')
+
+
+def csv_to_json(in_file, out_file):
+    import csv
+    import json
+
+    csvfile = open(in_file, 'r')
+    jsonfile = open(out_file, 'w')
+
+    fieldnames = ("Ticker","Name","Rating","Industry")
+    reader = csv.DictReader( csvfile, fieldnames)
+    for row in reader:
+        json.dump(row, jsonfile)
+        jsonfile.write('\n')
 
 if __name__ == '__main__':
-    generate_ratings(company_data.getData('lib/ticker_cache.csv'))
+    #generate_ratings(company_data.getData('lib/ticker_cache.csv'))
+    csv_to_json('lib/ticker_cache.csv', 'ticker_cache.json')
     #filterDF()

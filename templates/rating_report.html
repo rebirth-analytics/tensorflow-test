@@ -1,0 +1,44 @@
+<!doctype html>
+<head>
+    <script src="static/js/jquery-3.3.1.slim.min.js"></script>
+    <script type="text/javascript">
+       var rating = {{ data.current_rating|tojson }};
+   </script>
+    <link href="static/css/result.css" rel="stylesheet">
+</head>
+<body>
+    <script>
+        function setBarPosition() {
+            var elem = document.getElementById('frontBar');
+            elem.style.left = (40 * rating).toString() + 'px';
+        }
+        window.onload = setBarPosition;
+    </script>
+    <img id="logo" src="static/img/rebirth_logo.png">
+    <title> Rating Result </title>
+    <h1>Rating for {{data.company_name}}</h1>
+    <div id="heatBar">
+        <img id="backBar" src="static/img/heat_bar.jpg">
+        <img id="frontBar" src="static/img/black_bar.jpg">
+    </div>
+    <div id="barCaptions">
+        <text id="leftCaption">Poor</text>
+        <text id="rightCaption">Excellent</text>
+    </div>
+    <h2>Rating: {{ data.current_rating }}</h2>
+    <h3>Industry Average Rating for {{data.industry}}: {{data.industry_rating}}</h3>
+    {% if data.current_rating == 10 %}
+    <h2>Outstanding: Highest rating possible</h2>
+    {% elif data.current_rating >= 7 %}
+    <h2>Excellent</h2>
+    {% elif data.current_rating >= 6 %}
+    <h2>Good</h2>
+    {% elif data.current_rating >= 5 %}
+    <h2>Passable, but slightly below average</h2>
+    {% elif data.current_rating >= 1 %}
+    <h2><u>Significant Risk From Low Financial Health</u></h2>
+    {% else %}
+    <h2>Poor: Very risky collection of credit</h2>
+    {% endif %}
+    <h1></h1>
+</body>
