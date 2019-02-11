@@ -1,19 +1,111 @@
 import re
 import os
 import mysql.connector
-from mysql.connector import errorcode
+from mysql.connector import errorcode, pooling
 
 UUID_PATTERN = re.compile(r'^[\da-f]{8}-([\da-f]{4}-){3}[\da-f]{12}$', re.IGNORECASE)
+
+class MySQLPool(object):
+    """
+    create a pool when connect mysql, which will decrease the time spent in 
+    request connection, create connection and close connection.
+    """
+    def __init__(self, host=os.environ['DB_HOST'], port="3306", user=os.environ['DB_USER'],
+                 password=os.environ['DB_PASSWORD'], database=os.environ['DB_SCHEMA'], pool_name="mypool",
+                 pool_size=3, ssl_ca=os.environ['CERT_FILE'], ssl_verify_cert=True):
+        res = {}
+        self._host = host
+        self._port = port
+        self._user = user
+        self._password = password
+        self._database = database
+        self._ssl_ca = ssl_ca
+        self._ssl_verify_cert = ssl_verify_cert
+
+        res["host"] = self._host
+        res["port"] = self._port
+        res["user"] = self._user
+        res["password"] = self._password
+        res["database"] = self._database
+        res["ssl_ca"] = self._ssl_ca
+        res["ssl_verify_cert"] = self._ssl_verify_cert
+        self.dbconfig = res
+        self.pool = self.create_pool(pool_name=pool_name, pool_size=pool_size)
+
+    def create_pool(self, pool_name="mypool", pool_size=3):
+        """
+        Create a connection pool, after created, the request of connecting 
+        MySQL could get a connection from this pool instead of request to 
+        create a connection.
+        :param pool_name: the name of pool, default is "mypool"
+        :param pool_size: the size of pool, default is 3
+        :return: connection pool
+        """
+        pool = mysql.connector.pooling.MySQLConnectionPool(
+            pool_name=pool_name,
+            pool_size=pool_size,
+            pool_reset_session=True,
+            **self.dbconfig)
+        return pool
+
+    def close(self, conn, cursor):
+        """
+        A method used to close connection of mysql.
+        :param conn: 
+        :param cursor: 
+        :return: 
+        """
+        cursor.close()
+        conn.close()
+
+    def execute(self, sql, args=None, commit=False):
+        """
+        Execute a sql, it could be with args and with out args. The usage is 
+        similar with execute() function in module pymysql.
+        :param sql: sql clause
+        :param args: args need by sql clause
+        :param commit: whether to commit
+        :return: if commit, return None, else, return result
+        """
+        # get connection form connection pool instead of create one.
+        conn = self.pool.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        if args:
+            cursor.execute(sql, args)
+        else:
+            cursor.execute(sql)
+        if commit is True:
+            conn.commit()
+            self.close(conn, cursor)
+            return None
+        else:
+            res = cursor.fetchone()
+            self.close(conn, cursor)
+            return res
+
+    def executemany(self, sql, args, commit=False):
+        """
+        Execute with many args. Similar with executemany() function in pymysql.
+        args should be a sequence.
+        :param sql: sql clause
+        :param args: args
+        :param commit: commit or not.
+        :return: if commit, return None, else, return result
+        """
+        # get connection form connection pool instead of create one.
+        conn = self.pool.get_connection()
+        cursor = conn.cursor()
+        cursor.executemany(sql, args)
+        if commit is True:
+            conn.commit()
+            self.close(conn, cursor)
+            return None
+        else:
+            res = cursor.fetchall()
+            self.close(conn, cursor)
+            return res
 try:
-    conn = mysql.connector.connect(
-        user=os.environ['DB_USER'],
-        password=os.environ['DB_PASSWORD'],
-        host=os.environ['DB_HOST'],
-        port=3306,
-        database=os.environ['DB_SCHEMA'], 
-        ssl_ca=os.environ['CERT_FILE'],
-        ssl_verify_cert=True)
-    print("Connection established")
+    pool=MySQLPool()
 except mysql.connector.Error as err:
     if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
         print("Something is wrong with the user name or password")
@@ -21,14 +113,10 @@ except mysql.connector.Error as err:
         print("Database does not exist")
     else:
         print(err)
-else:
-    cursor = conn.cursor(dictionary=True)
 
 def is_uuid(uuid):
     return UUID_PATTERN.match(uuid)
 
 def locate_report_data(uuid):
-    cursor.execute("SELECT * FROM reports WHERE uuid = UuidToBin('{0}') ;".format(uuid))
-    row = cursor.fetchone()
+    row = pool.execute("SELECT * FROM reports WHERE uuid = UuidToBin('{0}') ;".format(uuid))
     return row
-
