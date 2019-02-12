@@ -10,6 +10,7 @@ body {
     font-family: Verdana, Geneva, sans-serif;
     display: block;
     font-size: 16pt;
+    --title-background-color: darkslateblue;
 }
 body div {
     display: flex;
@@ -45,7 +46,7 @@ body div#companyInfo {
     width: 800px;
     justify-content: center;
     align-items: center;
-    background-color: rebeccapurple;
+    background-color: var(--title-background-color);
     color: white;
 }
 body div#companyInfo div{
@@ -54,33 +55,85 @@ body div#companyInfo div{
     text-align: center;
 }
 div#rating{
+    --rating-border-color: slateblue;
+    --rating-width: 700px;
+    background-color: lightsteelblue;
     display: table-cell;
     margin-top: 16px;
     margin-left: 50px;
-    width: 700px;
-    border-radius: 25px;
-    border: 1px solid slateblue;
+    width: var(--rating-width);
+    border-radius: 45px;
+    border: 1px solid var(--rating-border-color);
+}
+div#rating div h2{
+    width: var(--rating-width);
+    text-align: center;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-weight: normal;
+    display: block;
 }
 div#heatBar {
+    width: var(--rating-width);
+    justify-content: center;
     align-items: center;
     height: 50px;
+    margin-bottom: 20px
 }
-div#heatBar img#backBar {
-    height: 40px;
-    width: 400px;
-    z-index: -1;
+div#heatBar div#backBar {
+    height: 42px;
+    width: 602px;
+
+    background: -webkit-gradient(
+        linear,
+        left top,
+        right top,
+        color-stop(0.03, rgb(250,3,3)),
+        color-stop(0.52, rgb(240,255,127)),
+        color-stop(0.76, rgb(42,24,173))
+    );
+    border: 1px solid var(--rating-border-color);
 }
 div#heatBar img#frontBar {
     position: absolute;
-    top: 389px;
+    top: 383px;
     z-index: 1;
-    height: 50px;
+    height: 52px;
 }
-div#barCaptions {
-    height: 14px;
-    font-size: 12px;
+div#rating div.ratingTitleRow{
+    height: 60px;
+    width: var(--rating-width);
+    justify-content: center;
+    margin-bottom: 5px;
 }
-div#barCaptions text#leftCaption {
-    left: 5px;
-    margin-right: 334px;
+
+body div#rating div.ratingSubtitle {
+    height: 58px;
+    width: 270px;
+    border-radius: 20px;
+    border: 1px solid var(--rating-border-color);
+    background-color: var(--title-background-color);
+    color: white;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    margin-left: 30px;
+}
+
+div#rating div.valueRow{
+    height: 60px;
+    width: var(--rating-width);
+    justify-content: center;
+    margin-bottom: 25px;
+}
+body div#rating div.ratingValue {
+    border: steelblue 1px solid;
+    height: 58px;
+    width: 58px;
+    background-color: slateblue;
+    color: white;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    margin-right: 100px;
+    margin-left: 140px;
 }
