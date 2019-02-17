@@ -23,14 +23,9 @@ def test_book(filename):
 def get_report_period():
     currentMonth = datetime.datetime.now().month
     currentYear = datetime.datetime.now().year
-    if currentMonth >= 2 and currentMonth < 5:
-        return "Q4 {0}".format(str(currentYear - 1))
-    elif currentMonth >= 5 and currentMonth < 8:
-        return "Q1 {0}".format(str(currentYear))
-    elif currentMonth >= 8 and currentMonth < 11:
-        return "Q2 {0}".format(str(currentYear))
-    else:
-        return "Q3 {0}".format(str(currentYear - 1))
+    if currentMonth < 2:
+        return "Y {0}".format(str(currentYear - 2))
+    return "Y {0}".format(str(currentYear - 1))
         
 def get_json_response(rows):
     response = jsonify(result = rows)

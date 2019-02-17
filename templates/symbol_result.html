@@ -81,7 +81,7 @@
             {% if data.default_probability == -1 %}
             <div class="ratingValue">No Data</div>
             {% else %}
-            <div class="ratingValue">{{ data.default_probability }}%</div>
+            <div class="ratingValue">{{ '{0:0.1f}'.format(data.default_probability) }}%</div>
             {% endif %}
             <div class="ratingValue">{{ data.resiliency_ratio }}</div>
         </div>
