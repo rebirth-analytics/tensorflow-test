@@ -38,6 +38,52 @@ def getIndustries(source_df):
     out_df = pd.DataFrame(rows_list, columns=['Ticker', 'Name', 'Rating', 'Industry'])  
     out_df.to_csv('tickers_industries_updated.csv')
 
+def generate_aux_data(source_df):
+    rows_list = []
+    for i, row in source_df.iterrows():
+        if i >= 4600:
+            address = nn_predict.getAddressFor(row['Ticker'])
+            if address is not None:
+                dict1 = {'Ticker': row['Ticker'], 
+                    'Name': row['Name'], 
+                    'Rating': row['Rating'], 
+                    'Industry': row['Industry'],
+                    'Address': address,
+                    'Resiliency': 0,
+                    'DefaultProb': 0}
+                try: 
+                    resiliency = nn_predict.getResiliencyFor(row['Ticker'])
+                    dict1 = {'Ticker': row['Ticker'], 
+                        'Name': row['Name'], 
+                        'Rating': row['Rating'], 
+                        'Industry': row['Industry'],
+                        'Address': address,
+                        'Resiliency': resiliency,
+                        'DefaultProb': -1}
+                    try:
+                        bankrupt = nn_predict.getBankruptFor(row['Ticker'])
+                        dict1 = {'Ticker': row['Ticker'], 
+                            'Name': row['Name'], 
+                            'Rating': row['Rating'], 
+                            'Industry': row['Industry'],
+                            'Address': address,
+                            'Resiliency': resiliency,
+                            'DefaultProb': bankrupt}
+                    except Exception as e: 
+                        print("o-score " + str(e) + " ticker: {0}".format(row['Ticker']))
+                        if int(row['Rating']) != -1:
+                            rows_list.append(dict1)
+                        pass
+                except Exception as e: 
+                    print("resiliency " + str(e) + " ticker: {0}".format(row['Ticker']))
+                    if int(row['Rating']) != -1:
+                        rows_list.append(dict1)
+                    pass
+                rows_list.append(dict1)
+
+    out_df = pd.DataFrame(rows_list, columns=['Ticker', 'Name', 'Rating', 'Industry', 'Address', 'Resiliency', 'DefaultProb'])  
+    out_df.to_csv('A_Ratings_20190217.csv')
+
 def generate_ratings(source_df):
     """
     bad_co_list = [ 
@@ -68,7 +114,7 @@ def generate_ratings(source_df):
         rows_list.append(dict1)
 
     out_df = pd.DataFrame(rows_list, columns=['Ticker', 'Name', 'Rating', 'Industry'])  
-    out_df.to_csv('A_Ratings_20190124.csv')
+    out_df.to_csv('A_Ratings_20190217.csv')
 
 
 def csv_to_json(in_file, out_file):
@@ -85,6 +131,6 @@ def csv_to_json(in_file, out_file):
         jsonfile.write('\n')
 
 if __name__ == '__main__':
-    #generate_ratings(company_data.getData('lib/ticker_cache.csv'))
-    csv_to_json('lib/ticker_cache.csv', 'ticker_cache.json')
+    generate_aux_data(company_data.getData('lib/ticker_cache.csv'))
+    #csv_to_json('lib/ticker_cache.csv', 'ticker_cache.json')
     #filterDF()

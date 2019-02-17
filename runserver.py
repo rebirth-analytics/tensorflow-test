@@ -8,6 +8,7 @@ from xlrd import open_workbook, XLRDError
 from lib import nn_predict
 from lib import company_data
 from lib import db_utils
+import datetime
  
 app = Flask(__name__)
 
@@ -18,6 +19,18 @@ def test_book(filename):
         return False
     else:
         return True
+
+def get_report_period():
+    currentMonth = datetime.datetime.now().month
+    currentYear = datetime.datetime.now().year
+    if currentMonth >= 2 and currentMonth < 5:
+        return "Q4 {0}".format(str(currentYear - 1))
+    elif currentMonth >= 5 and currentMonth < 8:
+        return "Q1 {0}".format(str(currentYear))
+    elif currentMonth >= 8 and currentMonth < 11:
+        return "Q2 {0}".format(str(currentYear))
+    else:
+        return "Q3 {0}".format(str(currentYear - 1))
         
 def get_json_response(rows):
     response = jsonify(result = rows)
@@ -61,11 +74,18 @@ def rate_symbol():
     company = "No Financial Data Available"
     average = 0
     industry = "Unknown"
+    address = ""
+    report_period = get_report_period()
+    resiliency = .5
+    bankruptcy_prob = -1
     try: 
         rating = int(company_data.getRatingFor(symbol))
         company = "Company Name Not Found"
         company = company_data.getCompanyName(symbol)
         industry = company_data.getIndustryFor(symbol)
+        address = company_data.getAddressFor(symbol)
+        resiliency = company_data.getResiliencyFor(symbol)
+        bankruptcy_prob = company_data.getDefaultProbFor(symbol)
     except : 
         print("Error calling company_data.getRatingFor()")
         pass
@@ -77,7 +97,16 @@ def rate_symbol():
     except : 
         print("Error calling company_data.getAverageFor()")
         pass
-    data = {'rating': str(rating), 'symbol': symbol, 'company': company, 'test': '', 'industry': industry, 'average': average}
+    data = {'current_rating': int(rating), 
+        'symbol': symbol, 
+        'date_generated': datetime.datetime.today(),
+        'report_period': report_period,
+        'address': address,
+        'resiliency_ratio': resiliency,
+        'default_probability': bankruptcy_prob,
+        'company_name': company,
+        'industry': industry, 
+        'industry_rating': average}
     return render_template('symbol_result.html', data=data)
 
 @app.route('/rating_result')

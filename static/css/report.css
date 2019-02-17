@@ -127,8 +127,8 @@ div#rating div.valueRow{
 }
 body div#rating div.ratingValue {
     border: steelblue 1px solid;
-    height: 58px;
-    width: 58px;
+    height: 68px;
+    width: 72px;
     background-color: slateblue;
     color: white;
     text-align: center;
@@ -136,4 +136,27 @@ body div#rating div.ratingValue {
     justify-content: center;
     margin-right: 100px;
     margin-left: 140px;
+}
+
+div#ticker input[type="text"] {
+    float: right;
+    margin: 0px;
+}
+
+div#ticker {
+    width: 290px;
+    height: 22px;
+    display: flex;
+    border-radius: 2px;
+    border: 1px #5a5a5a;
+    background: #bbbbbb;
+    padding: 0px;
+    font-size: 11pt;
+    margin-bottom: 8px;
+}
+div#ticker label {
+    margin: 2px;
+}
+div#ticker select {
+    height: 22px;
 }

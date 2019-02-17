@@ -2,12 +2,16 @@ from __future__ import print_function
 import tensorflow as tf
 import numpy as np
 import lib.test_inputs as test_inputs
+import requests
+import math
 
 """Load model from export_dir, predict on input data, expected output is 5."""
 export_dir = './tmp/'
 checkpoint_path = tf.train.latest_checkpoint(export_dir)
 saver = tf.train.import_meta_graph(checkpoint_path + ".meta", import_scope=None)
 rating_cache = {}
+base_query_url = "https://query2.finance.yahoo.com/v10/finance/quoteSummary/"
+scaling_factor = 1000
 
 def load_graph():
     ret_list = []
@@ -80,9 +84,118 @@ def RepresentsInt(s):
     except ValueError:
         return False
 
+
+def getModuleUrlFor(symbol, module):
+    return "{0}{1}?modules={2}".format(base_query_url, symbol, module)
+    
+def getAddressFor(symbol):
+    yahoo_url = getModuleUrlFor(symbol, "assetProfile")
+    profile_dict = requests.get(yahoo_url).json()
+    if profile_dict['quoteSummary']['error'] is not None or len(profile_dict['quoteSummary']['result']) < 1:
+        return None
+
+    d = profile_dict['quoteSummary']['result'][0]['assetProfile']
+    address = ""
+    if 'address1' in d:
+        address = d['address1']
+        if 'address2' in d:
+            address += " {0}".format(d['address2'])
+    loc = ""
+    if 'city' in d:
+        loc = d['city']
+        if 'zip' in d:
+            loc = "{0} {1}".format(d['city'], d['zip'])
+            if 'state' in d:
+                loc = "{0} {1} {2}".format(d['city'], d['state'], d['zip'])
+    elif 'state' in d:
+        loc = d['state']
+    elif 'zip' in d:
+        loc = d['zip']
+
+    return "{0} {1}".format(address, loc)
+
+
+def getResiliencyFor(symbol):
+    """
+        totalDebt / totalRevenue
+    """
+    fin_dict = {}
+
+    yahoo_income_url = getModuleUrlFor(symbol, "incomeStatementHistory")
+    income = requests.get(yahoo_income_url).json()['quoteSummary']['result'][0]['incomeStatementHistory']['incomeStatementHistory'][0]
+    yahoo_fin_url = getModuleUrlFor(symbol, "financialData")
+    f_dict = requests.get(yahoo_fin_url).json()
+    if f_dict['quoteSummary']['error'] is not None:
+        return -1 
+
+    fin_data = f_dict['quoteSummary']['result'][0]['financialData']
+    if 'totalRevenue' in income and 'totalDebt' in fin_data:
+        totalDebt = int(fin_data['totalDebt']['raw'] / scaling_factor)
+        r = income['totalRevenue']
+        if 'raw' in r and int(r['raw']) != 0:
+            totalRevenue = int(r['raw'] / scaling_factor)
+            return float(totalDebt / totalRevenue)
+
+    return -1
+
+def getFinDict(symbol):
+    fin_dict = {}
+    yahoo_balance_url = getModuleUrlFor(symbol, "balanceSheetHistory")
+    b_history = requests.get(yahoo_balance_url).json()['quoteSummary']['result'][0]['balanceSheetHistory']['balanceSheetStatements']
+    if len(b_history) < 2 or 'totalCurrentLiabilities' not in b_history[0] or 'totalCurrentAssets' not in b_history[0] or 'totalCurrentLiabilities' not in b_history[1]:
+        return None
+    
+    fin_dict['b0'] = b_history[0]
+    fin_dict['b1'] = b_history[1]
+
+    yahoo_cash_url = getModuleUrlFor(symbol, "cashflowStatementHistory")
+    cash_hist = requests.get(yahoo_cash_url).json()['quoteSummary']['result'][0]['cashflowStatementHistory']['cashflowStatements']
+    if len(cash_hist) < 2 or 'netIncome' not in cash_hist[0] or 'totalCashFromOperatingActivities' not in cash_hist[0] or 'raw' not in cash_hist[0]['totalCashFromOperatingActivities']:
+        return None
+    fin_dict['c0'] = cash_hist[0]
+    fin_dict['c1'] = cash_hist[1]
+    return fin_dict
+
+def getBankruptFor(symbol):
+    """
+        Calculate Ohlson O-score for a company
+    """
+    d = getFinDict(symbol)
+    if d is not None:
+        b_dict = d['b0']
+        totalLiabilities = int(b_dict['totalLiab']['raw']) / scaling_factor
+        currentLiabilities = int(b_dict['totalCurrentLiabilities']['raw']) / scaling_factor
+        prevCurrentLiabilities = int(d['b1']['totalCurrentLiabilities']['raw']) / scaling_factor
+        currentAssets = int(b_dict['totalCurrentAssets']['raw']) / scaling_factor
+        prevCurrentAssets = int(d['b1']['totalCurrentAssets']['raw']) / scaling_factor
+        totalAssets = int(b_dict['totalAssets']['raw']) / scaling_factor
+        workingCapital = currentAssets - currentLiabilities
+        changeInWorkingCapital = workingCapital - (prevCurrentAssets - prevCurrentLiabilities)
+        cashFromOps = int(d['c0']['totalCashFromOperatingActivities']['raw']) / scaling_factor
+        fundsFromOps = cashFromOps - changeInWorkingCapital
+        gnp = 108
+        netIncome = int(d['c0']['netIncome']['raw']) / scaling_factor
+        prevNetIncome = int(d['c0']['netIncome']['raw']) / scaling_factor
+        X = 0
+        if totalLiabilities > totalAssets:
+            X = 1
+        Y = 0
+        if (netIncome + prevNetIncome) < 0:
+            Y = 1
+        o_score = -1.32 - (.407 * math.log(totalAssets / gnp)) \
+            + 6.03 * (totalLiabilities / totalAssets) \
+            - 1.43 * (workingCapital / totalAssets) \
+            - .0757 * (currentLiabilities / currentAssets) \
+            - 1.72 * X \
+            - 2.37 * (fundsFromOps / totalLiabilities) \
+            + .285 * Y \
+            - .521 * ((netIncome - prevNetIncome) / (math.fabs(netIncome) + math.fabs(prevNetIncome)))
+        return o_score
+
+    return -1
+
 def getIndustryFor(symbol):
-    import requests
-    yahoo_url="https://query2.finance.yahoo.com/v10/finance/quoteSummary/{0}?modules=assetProfile".format(symbol)
+    yahoo_url = getModuleUrlFor(symbol, "assetProfile")
     profile_dict = requests.get(yahoo_url).json()
     if profile_dict['quoteSummary']['error'] is not None or len(profile_dict['quoteSummary']['result']) < 1:
         return None
@@ -96,15 +209,13 @@ def pullDataFor(symbol):
     if symbol in rating_cache:
         return rating_cache[symbol]
 
-    import requests
     data_dict = {}
-    scaling_factor = 1000
     yahoo_fin_url="https://query2.finance.yahoo.com/v10/finance/quoteSummary/{0}?modules=financialData".format(symbol)
     fin_dict = requests.get(yahoo_fin_url).json()
     if fin_dict['quoteSummary']['error'] is not None:
         return -1
-
     fin_stats_dict = fin_dict['quoteSummary']['result'][0]['financialData']
+
     yahoo_balance_url="https://query2.finance.yahoo.com/v10/finance/quoteSummary/{0}?modules=balanceSheetHistoryQuarterly".format(symbol)
     b_history = requests.get(yahoo_balance_url).json()['quoteSummary']['result'][0]['balanceSheetHistoryQuarterly']['balanceSheetStatements']
     if len(b_history) < 1 or 'totalCurrentLiabilities' not in b_history[0]:
@@ -185,6 +296,19 @@ def rateFromDict(dict):
     arr = [totalRatio, dict['currentRatio'], equityAssetRatio, dict['equityReturn'],
         timesInterestEarned, incomeCapexRatio, debtIncomeRatio, expenseSalesRatio]
     return rate(arr)
+
+def get_altman_score(dict):
+    """
+        Get Altman Z-score from data dict
+        z-score equals 1.2 A + 1.4 B + 3.3 C + 0.6 D + E
+        where:
+        A = (Current Assets - Current liabilities) / Total Assets
+        B = Retained Earnings / Total Assets
+        C = earnings pre interest and tax / Total Assets
+        D = Market Value of Equity (Market Cap)/ Total Liabilities
+        E = Sales / Total Assets 
+    """
+    return 4
 
 if __name__ == '__main__':
     #for input in test_inputs.in_data:
