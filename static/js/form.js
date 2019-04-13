@@ -4,20 +4,18 @@ $(function() {
 });
 
 function submitClicked() {
-    var list = [];
+    var inputs = document.querySelectorAll('input');    
+    var myObject = {};
+    var submitId = "submit_btn"
+
     url = "/rating_result?";
-    for(i = 1; i <= 20; i++) {
-        var num = ("0" + i).slice(-2);
-        elem_id = "#finarg" + num;
-        url += "arg=" + ($(elem_id).val() || "0") + "&";
+    for (var i = 0; i < inputs.length; i++) {
+        id = inputs[i].id;
+        if ( id !== submitId ) {
+            myObject[id] = inputs[i].value;
+            url += id + "=" + encodeURIComponent(inputs[i].value.trim()) + "&";
+        }
     }
-    var sum = 0;
-    $("input[type=radio].swquestion:checked").each(function() {
-        sum += parseInt(this.value);
-    });
-    url += "arg=1&compliance=" + sum.toString();
-    url += "&officeRatio=" + ($("#officeLicenses").val() / $("#officeInstances").val() ).toString();
-    url += "&windowsRatio=" + ($("#windowsLicenses").val() / $("#windowsInstances").val() ).toString();
-    url += "&SQLRatio=" + ($("#SQLLicenses").val() / $("#SQLInstances").val() ).toString();
+    url += "industry=" + encodeURIComponent($( "#industry option:selected" ).text().trim());
     window.location.assign(url);
 }

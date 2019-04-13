@@ -5,147 +5,232 @@
     <link href="static/css/form.css" rel="stylesheet">
 </head>
 <body>
-    <img id="logo" src="static/img/rebirth_logo.png" >
-    <title>Deployment Questionnaire</title>
-    <h2>Software Compliance Practices and Maturity</h2>
-    <div id="complianceQuestions">
-        <h3>Governance</h3>
-        <p>Is SAM a distinct organizational entity with clear accountability, defined roles, and established responsibilities? </p>
-            <input type="radio" class="swquestion" name="swquestion01" id="swrad01" value="0">
-            <label for "swrad01">Yes, SAM is a specific, well-defined function within the organization.</label>
-            <br />
-            <input type="radio" class="swquestion" name="swquestion01" id="swrad02" value="10">
-            <label for "swrad02">No, SAM is part of another function.</label>
-            <br />
-        <br />
-        <h3>Cost</h3>
-        <p>Do you have the capability to measure and manage costs across a software asset’s complete lifecycle (forecast, procurement, deployment, maintenance, and decommission)?</p>
-            <input type="radio" class="swquestion" name="swquestion02" id="swrad03" value="0">
-            <label for "swrad03">Yes, we maintain a mature SAM capability (in people, processes, and technologies) to ensure contract compliance—and avoid licensing penalties—throughout the software lifecycle, and to save money through software optimization.</label>
-            <br />
-            <input type="radio" class="swquestion" name="swquestion02" id="swrad04" value="5">
-            <label for "swrad04">We have ad hoc SAM controls that mainly address compliance, with only limited focus on cost optimization.</label>
-            <br />
-            <input type="radio" class="swquestion" name="swquestion02" id="swrad05" value="10">
-            <label for "swrad05">We do not have a proactive focus on SAM. </label>
-            <br />
-        <br />
-        <p>When procuring software, do you evaluate existing and available software licenses within your organization? Do you validate the business need prior to initiating procurement?</p>
-            <input type="radio" class="swquestion" name="swquestion03" id="swrad06" value="0">
-            <label>Yes, we maintain an active software inventory and establish the business case prior to making any purchase.</label>
-            <br />
-            <input type="radio" class="swquestion" name="swquestion03" id="swrad07" value="10">
-            <label>No. While we have a procurement process for purchasing software, it is not integrated into our SAM program.</label>
-            <br />
-        <br />
-        <p>In the last three years, has your organization experienced a compliance review from a software publisher?</p>
-            <input type="radio" class="swquestion" name="swquestion04" id="swrad08" value="0">
-            <label>Yes, we experienced a software compliance review, and there were no findings of financial liability.</label>
-            <br />
-            <input type="radio" class="swquestion" name="swquestion04" id="swrad09" value="5">
-            <label>Yes, we experienced an audit, and we had a financial liability as a result of the audit. </label>
-            <br />
-            <input type="radio" class="swquestion" name="swquestion04" id="swrad10" value="10">
-            <label>No, we have not had any software audits. </label>
-            <br />
-        <br />
-        <h3>Compliance</h3>
-        <p>How do you actively limit the business and legal risks related to non-compliance with software licenses?</p>
-            <input type="radio" class="swquestion" name="swquestion05" id="swrad11" value="0">
-            <label>We have a mature SAM program that actively manages compliance.</label>
-            <br />
-            <input type="radio" class="swquestion" name="swquestion05" id="swrad12" value="2">
-            <label>We have regularly scheduled and standardized point-in-time assessments to validate what we own and what we’re using. </label>
-            <br />
-            <input type="radio" class="swquestion" name="swquestion05" id="swrad13" value="5">
-            <label>We perform ad hoc and/or informal point-in-time assessments, conducted either in-house or through outsourcing. </label>
-            <br />
-            <input type="radio" class="swquestion" name="swquestion05" id="swrad14" value="10">
-            <label>We don’t proactively manage software license compliance.</label>
-            <br />
-        <br />
-        <p>How does your organization integrate hardware configuration management into your software compliance environments?</p>
-            <input type="radio" class="swquestion" name="swquestion06" id="swrad15" value="0">
-            <label>All hardware configuration projects include a component for software management within the project lifecycle.</label>
-            <br />
-            <input type="radio" class="swquestion" name="swquestion06" id="swrad16" value="5">
-            <label>We assess software implementation after a hardware project has gone live and then make recommendations and changes as needed. </label>
-            <br />
-            <input type="radio" class="swquestion" name="swquestion06" id="swrad17" value="10">
-            <label>We’re reactive with respect to software compliance, taking action only when a specific licensing requirement is detected. </label>
-            <br />
-        <br />
-        <h3>Efficiency</h3>
-        <p>How is SAM executed across the enterprise—for example, throughout IT groups and operations? </p>
-            <input type="radio" class="swquestion" name="swquestion07" id="swrad18" value="0">
-            <label>All existing SAM capabilities—including procurement, maintenance, and disposal—are centrally executed and managed. </label>
-            <br />
-            <input type="radio" class="swquestion" name="swquestion07" id="swrad19" value="5">
-            <label>SAM is centrally supported; however, local groups are empowered to make their own decisions.</label>
-            <br />
-            <input type="radio" class="swquestion" name="swquestion07" id="swrad20" value="10">
-            <label>Responsibilities, decisions, and capabilities related to SAM are distributed throughout the enterprise.</label>
-            <br />
-        <br />
-    </div>
-    <h2>MAP Result Data</h2>
-    <div id="MAPData">
-        <label for="officeLicenses">Enter Number of Microsoft Office licenses:</label>
-        <input type="number" id="officeLicenses" value="70"><br />
-        <label for="officeInstances">Enter Number of Office Instances:</label>
-        <input type="number" id="officeInstances" value="100"><br />
-        <label for="windowsLicenses">Enter Number of Windows licenses:</label>
-        <input type="number" id="windowsLicenses" value="95"><br />
-        <label for="windowsInstances">Enter Number of Windows Instances:</label>
-        <input type="number" id="windowsInstances" value="100"><br />
-        <label for="SQLLicenses">Enter Number of SQL Server licenses:</label>
-        <input type="number" id="SQLLicenses" value="80"><br />
-        <label for="SQLInstances">Enter Number of SQL Server Instances:</label>
-        <input type="number" id="SQLInstances" value="100"><br />
-    </div>
+    <img id="logo" src="static/img/rebirth_title.png" >
+    <title>Rating Entry</title>
     <h2>Financial Information</h2>
     <div id="financialQuestions">
-        <label for="finarg01">Enter Ratio of Total Assets to Total Liabilities:</label>
-        <input type="number" id="finarg01" value="1.57"><br />
-        <label for="finarg02">Enter Current Liabilities/Total Liabilities:</label>
-        <input type="number" id="finarg02" value="0.1"><br />
-        <label for="finarg03">Enter Current Ratio:</label>
-        <input type="number" id="finarg03" value="1.46"><br />
-        <label for="finarg04">Enter Long Term Debt/ Capex</label>
-        <input type="number" id="finarg04" value="6.8"><br />
-        <label for="finarg05">Enter Debt Ratio:</label>
-        <input type="number" id="finarg05" value="0.35"><br />
-        <label for="finarg06">Enter Times Interest Earned:</label>
-        <input type="number" id="finarg06" value="3.4"><br />
-        <label for="finarg07">Enter Shareholders equity + Long term debt / Fixed assets</label>
-        <input type="number" id="finarg07" value="0.86"><br />
-        <label for="finarg08">Enter Quick Ratio</label>
-        <input type="number" id="finarg08" value="0.72"><br />
-        <label for="finarg09">Enter Return on Assets</label>
-        <input type="number" id="finarg09" value="0.037"><br />
-        <label for="finarg10">Enter Return on Equity:</label>
-        <input type="number" id="finarg10" value="0.1"><br />
-        <label for="finarg11">Enter Operating Income/ Capital Expenditures</label>
-        <input type="number" id="finarg11" value="2.46"><br />
-        <label for="finarg12">Enter Net Income before tax/ Capital Expenditures</label>
-        <input type="number" id="finarg12" value="1.13"><br />
-        <label for="finarg13">Enter EBITDA/ Total Assets</label>
-        <input type="number" id="finarg13" value="0.12"><br />
-        <label for="finarg14">Enter Non Operating Income/ Sales	</label>
-        <input type="number" id="finarg14" value="-0.007"><br />
-        <label for="finarg15">Enter Net Income before tax/ Sales</label>
-        <input type="number" id="finarg15" value="0.16"><br />
-        <label for="finarg16">Enter (Net Income + Depreciation)/ Capital Expenditures + Change in inventory</label>
-        <input type="number" id="finarg16" value="1.6"><br />
-        <label for="finarg17">Enter Sales/Total Assets</label>
-        <input type="number" id="finarg17" value="0.35"><br />
-        <label for="finarg18">Enter Working Capital/Total Assets</label>
-        <input type="number" id="finarg18" value="0.35"><br />
-        <label for="finarg19">Enter Total Debt/Net Income</label>
-        <input type="number" id="finarg19" value="9.4"><br />
-        <label for="finarg20">Enter Operating Expenses/Sales</label>
-        <input type="number" id="finarg20" value="0"><br />
+        <label for="rater">Entity Purchasing Rating:</label>
+        <input type="text" id="rater" value="NKCB"><br />
+        <label for="company">Company Being Rated:</label>
+        <input type="text" id="company" value=""><br />
+        <label for="address">Company Address:</label>
+        <input type="text" id="address" value="(Not Given)"><br />
+        <label for="Industry">Industry:</label>
+        <select id="industry">
+            <optgroup label = "Choose One">
+        <option value="1">Advertising Agencies</option>
+        <option value="1">Aerospace & Defense</option>
+        <option value="1">Agricultural Inputs</option>
+        <option value="1">Airlines</option>
+        <option value="1">Airports & Air Services</option>
+        <option value="1">Aluminum</option>
+        <option value="1">Apparel Manufacturing</option>
+        <option value="1">Apparel Stores</option>
+        <option value="1">Asset Management</option>
+        <option value="1">Asset Managers</option>
+        <option value="1">Auto & Truck Dealerships</option>
+        <option value="1">Auto Dealerships</option>
+        <option value="1">Auto Manufacturers</option>
+        <option value="1">Auto Parts</option>
+        <option value="1">Auto Parts Stores</option>
+        <option value="1">Banks - Global</option>
+        <option value="1">Banks - Regional - Africa</option>
+        <option value="1">Banks - Regional - Asia</option>
+        <option value="1">Banks - Regional - Europe</option>
+        <option value="1">Banks - Regional - US</option>
+        <option value="1">Beverages - Brewers</option>
+        <option value="1">Beverages - Soft Drinks</option>
+        <option value="1">Beverages - Wineries & Distilleries</option>
+        <option value="1">Biotechnology</option>
+        <option value="1">Broadcasting - Radio</option>
+        <option value="1">Broadcasting - TV</option>
+        <option value="1">Building Materials</option>
+        <option value="1">Business Equipment</option>
+        <option value="1">Business Services</option>
+        <option value="1">Business Support Services</option>
+        <option value="1">Capital Markets</option>
+        <option value="1">Chemicals</option>
+        <option value="1">Coal</option>
+        <option value="1">Communication Equipment</option>
+        <option value="1">Computer Distribution</option>
+        <option value="1">Computer Systems</option>
+        <option value="1">Confectioners</option>
+        <option value="1">Conglomerates</option>
+        <option value="1">Consumer Electronics</option>
+        <option value="1">Contract Manufacturers</option>
+        <option value="1">Copper</option>
+        <option value="1">Credit Services</option>
+        <option value="1">Data Storage</option>
+        <option value="1">Department Stores</option>
+        <option value="1">Diagnostics & Research</option>
+        <option value="1">Discount Stores</option>
+        <option value="1">Diversified Industrials</option>
+        <option value="1">Diversified REITs</option>
+        <option value="1">Drug Manufacturers - Major</option>
+        <option value="1">Drug Manufacturers - Specialty & Generic</option>
+        <option value="1">Education & Training Services</option>
+        <option value="1">Electric Utilities</option>
+        <option value="1">Electronic Components</option>
+        <option value="1">Electronic Gaming & Multimedia</option>
+        <option value="1">Electronics Distribution</option>
+        <option value="1">Engineering & Construction</option>
+        <option value="1">Entertainment - Diversified</option>
+        <option value="1">Equity Investment Instruments</option>
+        <option value="1">Equity Investment Instruments </option>
+        <option value="1">Exploration & Production</option>
+        <option value="1">Farm & Construction Equipment</option>
+        <option value="1">Farm Products</option>
+        <option value="1">Financial Exchanges</option>
+        <option value="1">Food Distribution</option>
+        <option value="1">Footwear & Accessories</option>
+        <option value="1">Gambling</option>
+        <option value="1">Gold</option>
+        <option value="1">Grocery Stores</option>
+        <option value="1">Health Care Plans</option>
+        <option value="1">Health Information Services</option>
+        <option value="1">Home Furnishings & Fixtures</option>
+        <option value="1">Home Improvement Stores</option>
+        <option value="1">Hospitals</option>
+        <option value="1">Household & Personal Products</option>
+        <option value="1">Independent Oil & Gas</option>
+        <option value="1">Industrial Distribution</option>
+        <option value="1">Industrial Metals & Minerals</option>
+        <option value="1">Information Technology Services</option>
+        <option value="1">Infrastructure Operations</option>
+        <option value="1">Insurance - Diversified</option>
+        <option value="1">Insurance - Life</option>
+        <option value="1">Insurance - Property & Casualty</option>
+        <option value="1">Insurance - Reinsurance</option>
+        <option value="1">Insurance - Specialty</option>
+        <option value="1">Insurance Brokers</option>
+        <option value="1">Integrated Shipping & Logistics</option>
+        <option value="1">Internet Content & Information</option>
+        <option value="1">Investment Brokerage - National</option>
+        <option value="1">Leisure</option>
+        <option value="1">Lodging</option>
+        <option value="1">Long-Term Care Facilities</option>
+        <option value="1">Lumber & Wood Production</option>
+        <option value="1">Luxury Goods</option>
+        <option value="1">Marketing Services</option>
+        <option value="1">Media - Diversified</option>
+        <option value="1">Medical Care</option>
+        <option value="1">Medical Devices</option>
+        <option value="1">Medical Distribution</option>
+        <option value="1">Medical Instruments & Supplies</option>
+        <option value="1">Metal Fabrication</option>
+        <option value="1">Oil & Gas Drilling</option>
+        <option value="1">Oil & Gas E&P</option>
+        <option value="1">Oil & Gas Equipment & Services</option>
+        <option value="1">Oil & Gas Integrated</option>
+        <option value="1">Oil & Gas Midstream</option>
+        <option value="1">Oil & Gas Refining & Marketing</option>
+        <option value="1">Packaged Foods</option>
+        <option value="1">Packaging & Containers</option>
+        <option value="1">Paper & Paper Products</option>
+        <option value="1">Pay TV</option>
+        <option value="1">Personal Services</option>
+        <option value="1">Pharmaceutical Retailers</option>
+        <option value="1">Pollution & Treatment Controls</option>
+        <option value="1">Property & Casualty Insurance</option>
+        <option value="1">Property Management</option>
+        <option value="1">Publishing</option>
+        <option value="1">REIT - Diversified</option>
+        <option value="1">REIT - Healthcare Facilities</option>
+        <option value="1">REIT - Hotel & Motel</option>
+        <option value="1">REIT - Industrial</option>
+        <option value="1">REIT - Office</option>
+        <option value="1">REIT - Residential</option>
+        <option value="1">REIT - Retail</option>
+        <option value="1">Railroads</option>
+        <option value="1">Real Estate - General</option>
+        <option value="1">Real Estate Holding & Development</option>
+        <option value="1">Real Estate Services</option>
+        <option value="1">Recreational Vehicles</option>
+        <option value="1">Rental & Leasing Services</option>
+        <option value="1">Residential Construction</option>
+        <option value="1">Resorts & Casinos</option>
+        <option value="1">Restaurants</option>
+        <option value="1">Rubber & Plastics</option>
+        <option value="1">Savings & Cooperative Banks</option>
+        <option value="1">Savings & Loans</option>
+        <option value="1">Scientific & Technical Instruments</option>
+        <option value="1">Security & Protection Services</option>
+        <option value="1">Semiconductor - Broad Line</option>
+        <option value="1">Semiconductor Equipment & Materials</option>
+        <option value="1">Semiconductor Memory</option>
+        <option value="1">Semiconductors</option>
+        <option value="1">Shipping & Ports</option>
+        <option value="1">Silver</option>
+        <option value="1">Software - Application</option>
+        <option value="1">Software - Infrastructure</option>
+        <option value="1">Solar</option>
+        <option value="1">Specialty Chemicals</option>
+        <option value="1">Specialty Finance</option>
+        <option value="1">Specialty Retail</option>
+        <option value="1">Staffing & Outsourcing Services</option>
+        <option value="1">Steel</option>
+        <option value="1">Telecom Services</option>
+        <option value="1">Telecom Services - Domestic</option>
+        <option value="1">Textile Manufacturing</option>
+        <option value="1">Tobacco</option>
+        <option value="1">Tools & Accessories</option>
+        <option value="1">Transportation Services</option>
+        <option value="1">Truck Manufacturing</option>
+        <option value="160">Trucking</option>
+        <option value="161">Utilities - Diversified</option>
+        <option value="162">Utilities - Independent Power Producers</option>
+        <option value="163">Utilities - Regulated Electric</option>
+        <option value="164">Utilities - Regulated Gas</option>
+        <option value="165">Utilities - Regulated Water</option>
+        <option value="166">Waste Management</option>
+        <option value="167">Wireless Communications</option>
+        </optgroup>
+        </select><br />
+        <label for="period">Report Period</label>
+        <input type="text" id="period" value="Y 2018"><br />
+        <label for="totalAssets">Total Assets:</label>
+        <input type="number" id="totalAssets" value=""><br />
+        <label for="totalLiabilities">Total Liabilities:</label>
+        <input type="number" id="totalLiabilities" value=""><br />
+        <label for="currentAssets">Current Assets:</label>
+        <input type="number" id="currentAssets" value=""><br />
+        <label for="prevCurrentAssets">Previous Current Assets:</label>
+        <input type="number" id="prevCurrentAssets" value=""><br />
+        <label for="currentLiabilities">Current Liabilities:</label>
+        <input type="number" id="currentLiabilities" value=""><br />
+        <label for="prevCurrentLiabilities">Previous Current Liabilities:</label>
+        <input type="number" id="prevCurrentLiabilities" value=""><br />
+        <label for="shareholderEquity">Shareholder Equity:</label>
+        <input type="number" id="shareholderEquity" value=""><br />
+        <label for="longTermDebt">Long Term Debt:</label>
+        <input type="number" id="longTermDebt" value=""><br />
+        <label for="fixedAssets">Fixed Assets (aka Total Land Buildings Equipment):</label>
+        <input type="number" id="fixedAssets" value=""><br />
+        <label for="depreciation">Depreciation (Accumulated):</label>
+        <input type="number" id="depreciation" value=""><br />
+        <label for="interestExpense">Interest Expense:</label>
+        <input type="number" id="interestExpense" value=""><br />
+        <label for="equityReturn">Return on Equity:</label>
+        <input type="number" id="equityReturn" value="0.1"><br />
+        <label for="operatingIncome">Operating Income:</label>
+        <input type="number" id="operatingIncome" value=""><br />
+        <label for="capEx">Capital Expenditures:</label>
+        <input type="number" id="capEx" value=""><br />
+        <label for="inventoryChange">Inventory Change:</label>
+        <input type="number" id="inventoryChange" value=""><br />
+        <label for="totalDebt">Total Debt:</label>
+        <input type="number" id="totalDebt" value=""><br />
+        <label for="netIncome">Net Income:</label>
+        <input type="number" id="netIncome" value=""><br />
+        <label for="prevNetIncome">Previous Net Income:</label>
+        <input type="number" id="prevNetIncome" value=""><br />
+        <label for="operatingExpense">Operating Expense:</label>
+        <input type="number" id="operatingExpense" value=""><br />
+        <label for="sales">Sales (aka Total Revenue):</label>
+        <input type="number" id="sales" value=""><br />
+        <label for="totalCashFromOperatingActivities">Total Cash (aka Income) From Operating Activities:</label>
+        <input type="number" id="totalCashFromOperatingActivities" value=""><br />
         <br />
-        <input id="submit_btn" type="submit" value="Get SAM Score" onclick="submitClicked();">
+        <input id="submit_btn" type="submit" value="Get Report" onclick="submitClicked();">
     </div>
 </body>

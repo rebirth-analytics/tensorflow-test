@@ -20,7 +20,7 @@ def test_book(filename):
     else:
         return True
 
-def get_report_period():
+def get_report_period(year):
     currentMonth = datetime.datetime.now().month
     currentYear = datetime.datetime.now().year
     if currentMonth < 2:
@@ -65,12 +65,13 @@ def rate_symbol():
     """
     data = {'rating': '0', 'test': ''}
     symbol = request.args.get('symbol', default='AAPL', type = str)
+    year = request.args.get('year', default='2018', type = str)
     rating = 0
     company = "No Financial Data Available"
     average = 0
     industry = "Unknown"
     address = ""
-    report_period = get_report_period()
+    report_period = get_report_period(year)
     resiliency = .5
     bankruptcy_prob = -1
     try: 
@@ -93,6 +94,7 @@ def rate_symbol():
         print("Error calling company_data.getAverageFor()")
         pass
     data = {'current_rating': int(rating), 
+        'rating_change': 0,
         'symbol': symbol, 
         'date_generated': datetime.datetime.today(),
         'report_period': report_period,
@@ -106,6 +108,31 @@ def rate_symbol():
 
 @app.route('/rating_result')
 def rating_result():
+    address = request.args.getlist('arg', type = float)
+    address = request.args.get('address', default='(Not Given)', type = str)
+    company = request.args.get('company', default='(Not Given)', type = str)
+    industry = request.args.get('industry', default='(Not Given)', type = str)
+    report_period = request.args.get('period', default='(Not Given)', type = str)
+    rating = 6
+    average = -1
+    if industry is not None and str(industry) != 'nan' and industry != "Unknown":
+        average = company_data.getAverageForIndustry(industry)
+    bankruptcy_prob = 0.22222
+    resiliency = 0.33333
+    data = {'current_rating': int(rating), 
+        'rating_change': 0,
+        'is_public': 0,
+        'date_generated': datetime.datetime.today(),
+        'report_period': report_period,
+        'address': address,
+        'resiliency_ratio': resiliency,
+        'default_probability': bankruptcy_prob,
+        'company_name': company,
+        'industry': industry, 
+        'industry_rating': average}
+    return render_template('result.html', data=data)
+    
+def rating_result_OLD():
     args = request.args.getlist('arg', type = float)
     compliance = request.args.get('compliance', default=0, type = int)
     office_ratio = request.args.get('officeRatio', default=0, type = float)
@@ -120,7 +147,6 @@ def rating_result():
     #data = {'rating': str(rating), 'windows_ratio': windows_ratio, 'sql_ratio': sql_ratio, 'office_ratio': office_ratio}
     data = {'rating': str(90), 'windows_ratio': windows_ratio, 'sql_ratio': sql_ratio, 'office_ratio': office_ratio}
     return render_template('result.html', data=data)
-    
 @app.route('/rate_excel', methods = ['GET', 'POST'])
 def rate_excel():
     data = {'rating': '0', 'test': ''}
@@ -148,10 +174,10 @@ def rate_excel():
         data = {'rating': str(float(rating / row_count)), 'test': test_string}
         return render_template('excel_result.html', data=data)
 
+@app.route('/')
 def home():
     return render_template('form.html')
 
-@app.route('/')
 @app.route('/home')
 @app.route('/excel')
 @app.route('/batch_rating')

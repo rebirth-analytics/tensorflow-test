@@ -1,0 +1,151 @@
+<!doctype html>
+<head>
+    <script src="static/js/jquery-3.3.1.slim.min.js"></script>
+    <script src="static/js/form.js"></script>
+    <link href="static/css/form.css" rel="stylesheet">
+</head>
+<body>
+    <img id="logo" src="static/img/rebirth_logo.png" >
+    <title>Deployment Questionnaire</title>
+    <h2>Software Compliance Practices and Maturity</h2>
+    <div id="complianceQuestions">
+        <h3>Governance</h3>
+        <p>Is SAM a distinct organizational entity with clear accountability, defined roles, and established responsibilities? </p>
+            <input type="radio" class="swquestion" name="swquestion01" id="swrad01" value="0">
+            <label for "swrad01">Yes, SAM is a specific, well-defined function within the organization.</label>
+            <br />
+            <input type="radio" class="swquestion" name="swquestion01" id="swrad02" value="10">
+            <label for "swrad02">No, SAM is part of another function.</label>
+            <br />
+        <br />
+        <h3>Cost</h3>
+        <p>Do you have the capability to measure and manage costs across a software asset’s complete lifecycle (forecast, procurement, deployment, maintenance, and decommission)?</p>
+            <input type="radio" class="swquestion" name="swquestion02" id="swrad03" value="0">
+            <label for "swrad03">Yes, we maintain a mature SAM capability (in people, processes, and technologies) to ensure contract compliance—and avoid licensing penalties—throughout the software lifecycle, and to save money through software optimization.</label>
+            <br />
+            <input type="radio" class="swquestion" name="swquestion02" id="swrad04" value="5">
+            <label for "swrad04">We have ad hoc SAM controls that mainly address compliance, with only limited focus on cost optimization.</label>
+            <br />
+            <input type="radio" class="swquestion" name="swquestion02" id="swrad05" value="10">
+            <label for "swrad05">We do not have a proactive focus on SAM. </label>
+            <br />
+        <br />
+        <p>When procuring software, do you evaluate existing and available software licenses within your organization? Do you validate the business need prior to initiating procurement?</p>
+            <input type="radio" class="swquestion" name="swquestion03" id="swrad06" value="0">
+            <label>Yes, we maintain an active software inventory and establish the business case prior to making any purchase.</label>
+            <br />
+            <input type="radio" class="swquestion" name="swquestion03" id="swrad07" value="10">
+            <label>No. While we have a procurement process for purchasing software, it is not integrated into our SAM program.</label>
+            <br />
+        <br />
+        <p>In the last three years, has your organization experienced a compliance review from a software publisher?</p>
+            <input type="radio" class="swquestion" name="swquestion04" id="swrad08" value="0">
+            <label>Yes, we experienced a software compliance review, and there were no findings of financial liability.</label>
+            <br />
+            <input type="radio" class="swquestion" name="swquestion04" id="swrad09" value="5">
+            <label>Yes, we experienced an audit, and we had a financial liability as a result of the audit. </label>
+            <br />
+            <input type="radio" class="swquestion" name="swquestion04" id="swrad10" value="10">
+            <label>No, we have not had any software audits. </label>
+            <br />
+        <br />
+        <h3>Compliance</h3>
+        <p>How do you actively limit the business and legal risks related to non-compliance with software licenses?</p>
+            <input type="radio" class="swquestion" name="swquestion05" id="swrad11" value="0">
+            <label>We have a mature SAM program that actively manages compliance.</label>
+            <br />
+            <input type="radio" class="swquestion" name="swquestion05" id="swrad12" value="2">
+            <label>We have regularly scheduled and standardized point-in-time assessments to validate what we own and what we’re using. </label>
+            <br />
+            <input type="radio" class="swquestion" name="swquestion05" id="swrad13" value="5">
+            <label>We perform ad hoc and/or informal point-in-time assessments, conducted either in-house or through outsourcing. </label>
+            <br />
+            <input type="radio" class="swquestion" name="swquestion05" id="swrad14" value="10">
+            <label>We don’t proactively manage software license compliance.</label>
+            <br />
+        <br />
+        <p>How does your organization integrate hardware configuration management into your software compliance environments?</p>
+            <input type="radio" class="swquestion" name="swquestion06" id="swrad15" value="0">
+            <label>All hardware configuration projects include a component for software management within the project lifecycle.</label>
+            <br />
+            <input type="radio" class="swquestion" name="swquestion06" id="swrad16" value="5">
+            <label>We assess software implementation after a hardware project has gone live and then make recommendations and changes as needed. </label>
+            <br />
+            <input type="radio" class="swquestion" name="swquestion06" id="swrad17" value="10">
+            <label>We’re reactive with respect to software compliance, taking action only when a specific licensing requirement is detected. </label>
+            <br />
+        <br />
+        <h3>Efficiency</h3>
+        <p>How is SAM executed across the enterprise—for example, throughout IT groups and operations? </p>
+            <input type="radio" class="swquestion" name="swquestion07" id="swrad18" value="0">
+            <label>All existing SAM capabilities—including procurement, maintenance, and disposal—are centrally executed and managed. </label>
+            <br />
+            <input type="radio" class="swquestion" name="swquestion07" id="swrad19" value="5">
+            <label>SAM is centrally supported; however, local groups are empowered to make their own decisions.</label>
+            <br />
+            <input type="radio" class="swquestion" name="swquestion07" id="swrad20" value="10">
+            <label>Responsibilities, decisions, and capabilities related to SAM are distributed throughout the enterprise.</label>
+            <br />
+        <br />
+    </div>
+    <h2>MAP Result Data</h2>
+    <div id="MAPData">
+        <label for="officeLicenses">Enter Number of Microsoft Office licenses:</label>
+        <input type="number" id="officeLicenses" value="70"><br />
+        <label for="officeInstances">Enter Number of Office Instances:</label>
+        <input type="number" id="officeInstances" value="100"><br />
+        <label for="windowsLicenses">Enter Number of Windows licenses:</label>
+        <input type="number" id="windowsLicenses" value="95"><br />
+        <label for="windowsInstances">Enter Number of Windows Instances:</label>
+        <input type="number" id="windowsInstances" value="100"><br />
+        <label for="SQLLicenses">Enter Number of SQL Server licenses:</label>
+        <input type="number" id="SQLLicenses" value="80"><br />
+        <label for="SQLInstances">Enter Number of SQL Server Instances:</label>
+        <input type="number" id="SQLInstances" value="100"><br />
+    </div>
+    <h2>Financial Information</h2>
+    <div id="financialQuestions">
+        <label for="finarg01">Enter Ratio of Total Assets to Total Liabilities:</label>
+        <input type="number" id="finarg01" value="1.57"><br />
+        <label for="finarg02">Enter Current Liabilities/Total Liabilities:</label>
+        <input type="number" id="finarg02" value="0.1"><br />
+        <label for="finarg03">Enter Current Ratio:</label>
+        <input type="number" id="finarg03" value="1.46"><br />
+        <label for="finarg04">Enter Long Term Debt/ Capex</label>
+        <input type="number" id="finarg04" value="6.8"><br />
+        <label for="finarg05">Enter Debt Ratio:</label>
+        <input type="number" id="finarg05" value="0.35"><br />
+        <label for="finarg06">Enter Times Interest Earned:</label>
+        <input type="number" id="finarg06" value="3.4"><br />
+        <label for="finarg07">Enter Shareholders equity + Long term debt / Fixed assets</label>
+        <input type="number" id="finarg07" value="0.86"><br />
+        <label for="finarg08">Enter Quick Ratio</label>
+        <input type="number" id="finarg08" value="0.72"><br />
+        <label for="finarg09">Enter Return on Assets</label>
+        <input type="number" id="finarg09" value="0.037"><br />
+        <label for="finarg10">Enter Return on Equity:</label>
+        <input type="number" id="finarg10" value="0.1"><br />
+        <label for="finarg11">Enter Operating Income/ Capital Expenditures</label>
+        <input type="number" id="finarg11" value="2.46"><br />
+        <label for="finarg12">Enter Net Income before tax/ Capital Expenditures</label>
+        <input type="number" id="finarg12" value="1.13"><br />
+        <label for="finarg13">Enter EBITDA/ Total Assets</label>
+        <input type="number" id="finarg13" value="0.12"><br />
+        <label for="finarg14">Enter Non Operating Income/ Sales	</label>
+        <input type="number" id="finarg14" value="-0.007"><br />
+        <label for="finarg15">Enter Net Income before tax/ Sales</label>
+        <input type="number" id="finarg15" value="0.16"><br />
+        <label for="finarg16">Enter (Net Income + Depreciation)/ Capital Expenditures + Change in inventory</label>
+        <input type="number" id="finarg16" value="1.6"><br />
+        <label for="finarg17">Enter Sales/Total Assets</label>
+        <input type="number" id="finarg17" value="0.35"><br />
+        <label for="finarg18">Enter Working Capital/Total Assets</label>
+        <input type="number" id="finarg18" value="0.35"><br />
+        <label for="finarg19">Enter Total Debt/Net Income</label>
+        <input type="number" id="finarg19" value="9.4"><br />
+        <label for="finarg20">Enter Operating Expenses/Sales</label>
+        <input type="number" id="finarg20" value="0"><br />
+        <br />
+        <input id="submit_btn" type="submit" value="Get SAM Score" onclick="submitClicked();">
+    </div>
+</body>

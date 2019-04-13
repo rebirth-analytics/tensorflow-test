@@ -11,6 +11,11 @@ body {
     display: block;
     font-size: 16pt;
     --title-background-color: darkslateblue;
+    --row-width: 780px;
+    --box-width: 320px;
+    background-color: #f0f2f0;
+    --rating-border-color: slateblue;
+    --font-normal: Georgia, 'Times New Roman', Times, serif;
 }
 body div {
     display: flex;
@@ -35,7 +40,7 @@ body div#header div#headerRight div{
     line-height: 40px;
 }
 body div#companyInfo h1 {
-    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-family: var(--font-normal);
     font-weight: normal;
     margin-top: 8px;
     margin-bottom: 8px;
@@ -54,44 +59,43 @@ body div#companyInfo div{
     display: block;
     text-align: center;
 }
-div#rating{
-    --rating-border-color: slateblue;
-    --rating-width: 700px;
-    background-color: lightsteelblue;
-    display: table-cell;
-    margin-top: 16px;
-    margin-left: 50px;
-    width: var(--rating-width);
-    border-radius: 45px;
-    border: 1px solid var(--rating-border-color);
+body div#changeRow{
+    width: var(--row-width);
+    margin-top: 15px;
+    margin-bottom: 15px;
+    justify-content: center;
 }
-div#rating div h2{
-    width: var(--rating-width);
-    text-align: center;
-    font-family: Georgia, 'Times New Roman', Times, serif;
-    font-weight: normal;
+div#ratingGraphic {
     display: block;
 }
-div#heatBar {
-    width: var(--rating-width);
-    justify-content: center;
-    align-items: center;
-    height: 50px;
-    margin-bottom: 20px
-}
-div#heatBar div#backBar {
-    height: 42px;
-    width: 602px;
+body div#ratingGraphic div#backImage {
+    height: 400px;
+    width: var(--row-width);
+    margin-left: 10px;
+    text-align: center;
 
-    background: -webkit-gradient(
-        linear,
-        left top,
-        right top,
-        color-stop(0.03, rgb(250,3,3)),
-        color-stop(0.52, rgb(240,255,127)),
-        color-stop(0.76, rgb(42,24,173))
-    );
-    border: 1px solid var(--rating-border-color);
+    background-image: url("../img/half_circle.jpg");
+    background-size: var(--row-width) 400px;
+}
+body div#ratingGraphic div#backImage div {
+    font-weight: normal;
+    z-index: 1;
+    background-color: transparent;
+    position: absolute;
+    color: var(--title-background-color);
+    font-family: var(--font-normal);
+}
+body div#ratingGraphic div#backImage div#ratingNumber {
+    left: 370px;
+    top: 475px;
+    font-size: 120px;
+}
+body div#ratingGraphic div#backImage div#ratingText {
+    left: 130px;
+    top: 620px;
+    font-size: 55px;
+    width: 560px;
+    display: inline-block;
 }
 div#heatBar img#frontBar {
     position: absolute;
@@ -99,17 +103,40 @@ div#heatBar img#frontBar {
     z-index: 1;
     height: 52px;
 }
-div#rating div.ratingTitleRow{
-    height: 60px;
+body div#secondaryRatings, body div#explanation{
+    display: block;
+    font-family: var(--font-normal);
+}
+body div#explanation{
+    margin-left: 10px;
+    width: 840px;
+}
+body div#explanation h2{
+    text-align: center;
+}
+body div#secondaryRatings div.ratingInfoRow div{
+    width: var(--box-width);
+    justify-content: center;
+    margin-right: 140px;
+    margin-left: 30px;
+}
+body div#secondaryRatings div.ratingInfoRow div.subtext{
+    font-size: 18px;
+    text-align: center;
+}
+
+body div#secondaryRatings div.ratingInfoRow{
+    height: 80px;
     width: var(--rating-width);
     justify-content: center;
     margin-bottom: 5px;
 }
 
-body div#rating div.ratingSubtitle {
-    height: 58px;
-    width: 270px;
+body div.ratingInfoBox {
+    height: 78px;
+    width: var(--box-width);
     border-radius: 20px;
+    font-family: var(--font-normal);
     border: 1px solid var(--rating-border-color);
     background-color: var(--title-background-color);
     color: white;
@@ -119,23 +146,17 @@ body div#rating div.ratingSubtitle {
     margin-left: 30px;
 }
 
-div#rating div.valueRow{
+body div#secondaryRatings div.valueRow{
     height: 60px;
     width: var(--rating-width);
     justify-content: center;
     margin-bottom: 25px;
 }
-body div#rating div.ratingValue {
-    border: steelblue 1px solid;
-    height: 68px;
-    width: 72px;
-    background-color: slateblue;
-    color: white;
-    text-align: center;
-    align-items: center;
-    justify-content: center;
-    margin-right: 100px;
-    margin-left: 140px;
+body div#ratingGraphic div h2 {
+    color: orange;
+    font-family: var(--font-normal);
+    font-weight: normal;
+    margin-left: 70px;
 }
 
 div#ticker input[type="text"] {

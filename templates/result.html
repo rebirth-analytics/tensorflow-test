@@ -1,48 +1,95 @@
 <!doctype html>
 <head>
     <script src="static/js/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://www.flotcharts.org/flot/jquery.flot.js"></script>
     <script type="text/javascript">
-       var sql_ratio = {{ data.sql_ratio|tojson }};
-       var windows_ratio = {{ data.windows_ratio|tojson }};
-       var office_ratio = {{ data.office_ratio|tojson }};
-       var rating = {{ data.rating|tojson }};
+       var rating = {{ data.current_rating|tojson }};
    </script>
-   <script type="text/javascript" src="static/js/result.js"></script>
-    <link href="static/css/form.css" rel="stylesheet">
+    <link href="static/css/report.css" rel="stylesheet">
 </head>
 <body>
     <script>
         function setBarPosition() {
-            var elem = document.getElementById('frontBar');
-            elem.style.left = (4 * rating).toString() + 'px';
+            //var elem = document.getElementById('frontBar');
+            //elem.style.left = ((60 * rating) + 100).toString() + 'px';
+            //elem.style.top = (elem.offsetTop + 30).toString() + 'px';
+            return True;
         }
         window.onload = setBarPosition;
     </script>
-    <img id="logo" src="static/img/rebirth_logo.png">
-    <title> Rating Result </title>
-    <h1>SAM-Deployment Rating:</h1> 
-    <div id="heatBar">
-        <img id="backBar" src="static/img/heat_bar.jpg">
-        <img id="frontBar" src="static/img/black_bar.jpg">
+    <div id="header">
+        <img id="logo" src="static/img/rebirth_title.png">
+        <div id="headerRight">
+            <div>Corporate Financial Health Report</div>
+            <div>Dated: {{data.date_generated}}</div>
+        </div>
     </div>
-    <div id="barCaptions">
-        <text id="leftCaption">Poor</text>
-        <text id="rightCaption">Excellent</text>
+    <div id="companyInfo">
+        <div><h1>{{data.company_name}}</h1></div>
+        <div>
+            <text><b>Address:</b> {{data.address}}</text>
+        </div>
+        <div>
+            <text><b>Report Period:</b> {{data.report_period}}</text>
+        </div>
+        <div>
+            {% if data.is_public == 0 %}
+            <text><b>Status: </b> Private Company</text>
+            {% else %}
+            <text><b>Status: </b> Public Company</text>
+            {% endif %}
+        </div>
+        <div>
+            <text><b>Industry Sector: </b> {{data.industry}}</text>
+        </div>
     </div>
-    {% if data.rating >= "90" %}
-    <h2>Excellent: Highly mature software compliance qualifications with solid financial data</h2>
-    <h1>No followup necessary</h1>
-    {% elif data.rating >= "80" %}
-    <h2>Good: High to moderately mature software compliance qualifications with solid financial data</h2>
-    <h1>No followup necessary</h1>
-    {% elif data.rating >= "70" %}
-    <h2>Mediocre: Moderate to low software compliance qualifications, financial data questionable</h2>
-    <h1>Potential followup candidate</h1>
-    {% else %}
-    <h2>Poor: Immature software compliance practices, financial data questionable</h2>
-    <h1>Further Assistance Recommended</h1>
-    {% endif %}
-    <h4>Number of Licenses/Instances Found</h4>
-    <div id="flotMAP" style="width:400px;height:200px"></div>
+    <div id="ratingGraphic">
+        <div>
+            <h2>Industry Average Financial Health Score: {{ data.industry_rating }}</h2>
+        </div>
+        <div id="backImage">
+            <div id="ratingNumber">
+                {{ data.current_rating }}
+            </div>
+            <div id="ratingText">
+                This Company's Financial Health Score
+            </div>
+        </div>
+    </div>
+    <div id="changeRow">
+        <div class="ratingInfoBox">Financial Health Change From Last Quarter: {{ data.rating_change }}</div>
+    </div>
+    <div id="explanation">
+        {% if data.current_rating == 10 %}
+        <h2><u>Negligible Risk From Perfect Financial Health</u></h2>
+        {% elif data.current_rating >= 7 %}
+        <h2><u>Low Risk From Upper Medium Financial Health</u></h2>
+        Upper Medium: As a significantly higher than average performer, companies with an Upper Medium Financial Health tend to 
+        perform better than average. There is some risk, but it is low as overall financial health indicates the company is in a good position.
+        {% elif data.current_rating >= 6 %}
+        <h2><u>Moderate Risk From Medium Financial Health</u></h2>
+        Medium Financial Health: As an average performer, companies with Medium Financial Health tend to 
+        perform in the middle. There is a moderate amount of risk, which appears to be typical for the industry.
+        {% elif data.current_rating >= 5 %}
+        <h2><u>Significant Risk From Below Average Financial Health</u></h2>
+        {% elif data.current_rating >= 1 %}
+        <h2><u>Extreme Risk From Very Low Financial Health</u></h2>
+        {% else %}
+        <h2><u>Extreme Risk From Excessively Bad Financial Health</u></h2>
+        {% endif %}
+        <h1></h1>
+    </div>
+    <div id="secondaryRatings">
+        <div class="ratingInfoRow">
+            {% if data.default_probability == -1 %}
+            <div class="ratingInfoBox">Default Probability: No Data</div>
+            {% else %}
+            <div class="ratingInfoBox">Default Probability: {{ '{0:0.1f}'.format(data.default_probability) }}% </div>
+            {% endif %}
+            <div class="ratingInfoBox">Resiliency Ratio: {{ data.resiliency_ratio }}</div>
+        </div>
+        <div class="ratingInfoRow">
+            <div class="subtext">Likelihood of Default over 24 Months</div>
+            <div class="subtext">Ability of Company to rebound from major adverse financial circumstances over 24 Months</div>
+        </div>
+    </div>
 </body>

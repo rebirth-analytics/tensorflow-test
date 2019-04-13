@@ -27,6 +27,9 @@ def getAverageFor(symbol):
         return averages_df[averages_df.Industry == industry].iloc[0].CurrentRating
     return "Industry Not Found"
 
+def getAverageForIndustry(industry):
+    return averages_df[averages_df.Industry == industry].iloc[0].CurrentRating
+
 def getIndustryFor(symbol):
     df = cache_df[cache_df.Ticker == symbol]
     if not df.empty:

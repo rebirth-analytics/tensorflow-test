@@ -57,49 +57,54 @@
             <text><b>Industry Sector: </b> {{data.industry}}</text>
         </div>
     </div>
-    <div id="rating">
+    <div id="ratingGraphic">
         <div>
-            <h2>Corporate Financial Health Dashboard</h2>
+            <h2>Industry Average Financial Health Score: {{ data.industry_rating }}</h2>
         </div>
-        <div id="heatBar">
-            <div id="backBar"></div>
-            <img id="frontBar" src="static/img/black_bar.jpg">
-        </div>
-        <div class="ratingTitleRow">
-            <div class="ratingSubtitle">Company Financial Health Score</div>
-            <div class="ratingSubtitle">Industry Avg. Financial Health Score</div>
-        </div>
-        <div class="valueRow">
-            <div class="ratingValue">{{ data.current_rating }}</div>
-            <div class="ratingValue">{{ data.industry_rating }}</div>
-        </div>
-        <div class="ratingTitleRow">
-            <div class="ratingSubtitle">Default Probability Estimate</div>
-            <div class="ratingSubtitle">Resiliency Ratio</div>
-        </div>
-        <div class="valueRow">
-            {% if data.default_probability == -1 %}
-            <div class="ratingValue">No Data</div>
-            {% else %}
-            <div class="ratingValue">{{ '{0:0.1f}'.format(data.default_probability) }}%</div>
-            {% endif %}
-            <div class="ratingValue">{{ data.resiliency_ratio }}</div>
+        <div id="backImage">
+            <div id="ratingNumber">
+                {{ data.current_rating }}
+            </div>
+            <div id="ratingText">
+                This Company's Financial Health Score
+            </div>
         </div>
     </div>
-    <div>
+    <div id="changeRow">
+        <div class="ratingInfoBox">Financial Health Change From Last Quarter: {{ data.rating_change }}</div>
+    </div>
+    <div id="explanation">
         {% if data.current_rating == 10 %}
         <h2><u>Negligible Risk From Perfect Financial Health</u></h2>
         {% elif data.current_rating >= 7 %}
-        <h2><u>Very Little Risk From Excellent Financial Health</u></h2>
+        <h2><u>Low Risk From Upper Medium Financial Health</u></h2>
+        Upper Medium: As a significantly higher than average performer, companies with an Upper Medium Financial Health tend to 
+        perform better than average. There is some risk, but it is low as overall financial health indicates the company is in a good position.
         {% elif data.current_rating >= 6 %}
-        <h2><u>Slight Risk From Average Financial Health</u></h2>
+        <h2><u>Moderate Risk From Medium Financial Health</u></h2>
+        Medium Financial Health: As an average performer, companies with Medium Financial Health tend to 
+        perform in the middle. There is a moderate amount of risk, which appears to be typical for the industry.
         {% elif data.current_rating >= 5 %}
-        <h2><u>Moderate Risk From Below Average Financial Health</u></h2>
+        <h2><u>Significant Risk From Below Average Financial Health</u></h2>
         {% elif data.current_rating >= 1 %}
-        <h2><u>Significant Risk From Low Financial Health</u></h2>
-        {% else %}
         <h2><u>Extreme Risk From Very Low Financial Health</u></h2>
+        {% else %}
+        <h2><u>Extreme Risk From Excessively Bad Financial Health</u></h2>
         {% endif %}
         <h1></h1>
+    </div>
+    <div id="secondaryRatings">
+        <div class="ratingInfoRow">
+            {% if data.default_probability == -1 %}
+            <div class="ratingInfoBox">Default Probability: No Data</div>
+            {% else %}
+            <div class="ratingInfoBox">Default Probability: {{ '{0:0.1f}'.format(data.default_probability) }}% </div>
+            {% endif %}
+            <div class="ratingInfoBox">Resiliency Ratio: {{ data.resiliency_ratio }}</div>
+        </div>
+        <div class="ratingInfoRow">
+            <div class="subtext">Likelihood of Default over 24 Months</div>
+            <div class="subtext">Ability of Company to rebound from major adverse financial circumstances over 24 Months</div>
+        </div>
     </div>
 </body>
