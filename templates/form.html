@@ -212,7 +212,7 @@
         <input type="number" id="interestExpense" value=""><br />
         <label for="equityReturn">Return on Equity:</label>
         <input type="number" id="equityReturn" value="0.1"><br />
-        <label for="operatingIncome">Operating Income:</label>
+        <label for="operatingIncome">Operating Income (aka EBIT):</label>
         <input type="number" id="operatingIncome" value=""><br />
         <label for="capEx">Capital Expenditures:</label>
         <input type="number" id="capEx" value=""><br />
@@ -228,9 +228,13 @@
         <input type="number" id="operatingExpense" value=""><br />
         <label for="sales">Sales (aka Total Revenue):</label>
         <input type="number" id="sales" value=""><br />
+        <label for="workingCapital">Working Capital:</label>
+        <input type="number" id="workingCapital" value="-1"><br />
         <label for="totalCashFromOperatingActivities">Total Cash (aka Income) From Operating Activities:</label>
         <input type="number" id="totalCashFromOperatingActivities" value=""><br />
         <br />
-        <input id="submit_btn" type="submit" value="Get Report" onclick="submitClicked();">
+        <input id="submit_btn" type="submit" value="Get Report" onclick="submitClicked();"><br />
+        <br />
+        <input id="submit_pdf" type="submit" value="Get PDF" onclick="getPDF();">
     </div>
 </body>

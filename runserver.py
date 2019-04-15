@@ -2,13 +2,15 @@
 This script runs the FlaskWebProject application using a development server.
 """
 
-from os import environ
-from flask import Flask, jsonify, request, render_template, abort
+from os import environ, remove
+from flask import Flask, jsonify, request, render_template, make_response, abort
 from xlrd import open_workbook, XLRDError
 from lib import nn_predict
 from lib import company_data
 from lib import db_utils
 import datetime
+import math
+import pdfkit
  
 app = Flask(__name__)
 
@@ -106,19 +108,46 @@ def rate_symbol():
         'industry_rating': average}
     return render_template('symbol_result.html', data=data)
 
-@app.route('/rating_result')
-def rating_result():
-    address = request.args.getlist('arg', type = float)
-    address = request.args.get('address', default='(Not Given)', type = str)
-    company = request.args.get('company', default='(Not Given)', type = str)
-    industry = request.args.get('industry', default='(Not Given)', type = str)
-    report_period = request.args.get('period', default='(Not Given)', type = str)
-    rating = 6
+def get_dict_from_args(rargs):
+    rdict = {}
+    rdict['totalAssets'] = rargs.get('totalAssets', default=0, type = int)
+    rdict['totalLiabilities'] = rargs.get('totalLiabilities', default=0, type = int)
+    rdict['currentAssets'] = rargs.get('currentAssets', default=0, type = int)
+    rdict['prevCurrentAssets'] = rargs.get('prevCurrentAssets', default=0, type = int)
+    rdict['currentLiabilities'] = rargs.get('currentLiabilities', default=0, type = int)
+    rdict['prevCurrentLiabilities'] = rargs.get('prevCurrentLiabilities', default=0, type = int)
+    rdict['shareholderEquity'] = rargs.get('shareholderEquity', default=0, type = int)
+    rdict['longTermDebt'] = rargs.get('longTermDebt', default=0, type = int)
+    rdict['fixedAssets'] = rargs.get('fixedAssets', default=0, type = int)
+    rdict['depreciation'] = rargs.get('depreciation', default=0, type = int)
+    rdict['interestExpense'] = rargs.get('interestExpense', default=0, type = int)
+    rdict['equityReturn'] = rargs.get('equityReturn', default=0, type = float)
+    rdict['operatingIncome'] = rargs.get('operatingIncome', default=0, type = int)
+    rdict['capEx'] = rargs.get('capEx', default=0, type = int)
+    rdict['inventoryChange'] = rargs.get('inventoryChange', default=0, type = int)
+    rdict['totalDebt'] = rargs.get('totalDebt', default=0, type = int)
+    rdict['netIncome'] = rargs.get('netIncome', default=0, type = int)
+    rdict['prevNetIncome'] = rargs.get('prevNetIncome', default=0, type = int)
+    rdict['operatingExpense'] = rargs.get('operatingExpense', default=0, type = int)
+    rdict['sales'] = rargs.get('sales', default=0, type = int)
+    rdict['workingCapital'] = rargs.get('workingCapital', default=-1, type = int)
+    rdict['totalCashFromOperatingActivities'] = rargs.get('totalCashFromOperatingActivities', default=0, type = int)
+    return rdict
+
+def get_data_from_args(args):
+    address = args.get('address', default='(Not Given)', type = str)
+    company = args.get('company', default='(Not Given)', type = str)
+    industry = args.get('industry', default='(Not Given)', type = str)
+    report_period = args.get('period', default='(Not Given)', type = str)
+    rdict = get_dict_from_args(args)
+    rating = nn_predict.rateFromDict(rdict)
     average = -1
     if industry is not None and str(industry) != 'nan' and industry != "Unknown":
         average = company_data.getAverageForIndustry(industry)
-    bankruptcy_prob = 0.22222
-    resiliency = 0.33333
+    oscore = nn_predict.getBankruptFromDict(rdict)
+    ep = math.exp(oscore)
+    bankruptcy_prob = round(float(ep / (1 + ep)), 3) * 100
+    resiliency = nn_predict.getResiliencyFromDict(rdict)
     data = {'current_rating': int(rating), 
         'rating_change': 0,
         'is_public': 0,
@@ -130,8 +159,25 @@ def rating_result():
         'company_name': company,
         'industry': industry, 
         'industry_rating': average}
+    return data
+
+@app.route('/rating_result')
+def rating_result():
+    data = get_data_from_args(request.args)
     return render_template('result.html', data=data)
     
+@app.route('/rating_pdf')
+def rating_pdf():
+    data = get_data_from_args(request.args)
+    rendered_template = render_template('pdf_result.html', data=data) 
+
+    pdf = pdfkit.from_string(rendered_template, False)
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = \
+        'inline; filename=%s.pdf' % 'rebirth_report'
+    return response
+
 def rating_result_OLD():
     args = request.args.getlist('arg', type = float)
     compliance = request.args.get('compliance', default=0, type = int)

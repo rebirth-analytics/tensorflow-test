@@ -1,9 +1,9 @@
-FROM debian:stretch-slim
+FROM debian:buster-slim
 MAINTAINER Glenn Harper "zeigotaro@gmail.com"
 
 ENV BUILD_PACKAGES="\
         build-essential \
-        linux-headers-4.9 \
+        linux-headers-4.19 \
         python3-dev \
         cmake \
         tcl-dev \
@@ -17,7 +17,13 @@ ENV BUILD_PACKAGES="\
         bash \
         libgomp1 \
         python3 \
-        python3-pip" \
+        python3-pip \
+        libx11-dev \
+        fontconfig \
+        libxrender-dev \
+        libxext-dev \
+        wget \
+        wkhtmltopdf" \
     PIP_PACKAGES="\
         pyyaml \
         pymkl \
@@ -28,7 +34,8 @@ ENV BUILD_PACKAGES="\
         tensorflow \
         pandas \
         requests \
-        yahoofinancials" \
+        mysql-connector-python-rf \
+        pdfkit" \
     PYTHON_VERSION=3.7.2 \
     PATH=/usr/local/bin:$PATH \
     PYTHON_PIP_VERSION=18.1 \
@@ -71,3 +78,9 @@ ADD . /code/
 EXPOSE 5555
 
 CMD ["python", "./runserver.py"]
+
+ENV DB_PASSWORD="Jeremy's1stATLBurgerAdventure@Ted's"
+ENV DB_USER="rebirthadmin@rebirth-mysql01" 
+ENV DB_HOST="rebirth-mysql01.mysql.database.azure.com"
+ENV DB_SCHEMA="ratings"
+ENV CERT_FILE="static/certs/BaltimoreCyberTrustRoot.crt.pem"

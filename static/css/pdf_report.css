@@ -11,7 +11,7 @@ body {
     display: block;
     font-size: 16pt;
     --title-background-color: #432a76;
-    --row-width: 780px;
+    --row-width: 880px;
     --box-width: 370px;
     background-color: white;
     --rating-border-color: slateblue;
@@ -34,7 +34,7 @@ body div#header div#headerRight {
 }
 body div#header div#headerRight div{
     display: block;
-    width: 570px;
+    width: 630px;
     height: 40px;
     text-align: right;
     line-height: 40px;
@@ -63,7 +63,7 @@ body div#companyInfo div{
 }
 body div#changeRow{
     width: var(--row-width);
-    margin-top: 15px;
+    margin-top: 45px;
     margin-bottom: 15px;
     justify-content: center;
 }
@@ -71,13 +71,13 @@ div#ratingGraphic {
     display: block;
 }
 body div#ratingGraphic div#backImage {
-    height: 400px;
+    height: 450px;
     width: var(--row-width);
     margin-left: 10px;
     text-align: center;
 
-    background-image: url("../img/halfcirc.png");
-    background-size: var(--row-width) 400px;
+    background-image: url("/code/static/img/halfcirc.png");
+    background-size: var(--row-width) 450px;
 }
 body div#ratingGraphic div#backImage div {
     font-weight: normal;
@@ -88,15 +88,15 @@ body div#ratingGraphic div#backImage div {
     font-family: var(--font-normal);
 }
 body div#ratingGraphic div#backImage div#ratingNumber {
-    left: 370px;
-    top: 475px;
+    left: 420px;
+    top: 515px;
     font-size: 120px;
 }
 body div#ratingGraphic div#backImage div#ratingText {
-    left: 130px;
-    top: 620px;
-    font-size: 55px;
-    width: 560px;
+    left: 145px;
+    top: 670px;
+    font-size: 50px;
+    width: 600px;
     display: inline-block;
 }
 div#heatBar img#frontBar {
@@ -158,28 +158,5 @@ body div#ratingGraphic div h2 {
     color: orange;
     font-family: var(--font-normal);
     font-weight: normal;
-    margin-left: 60px;
-}
-
-div#ticker input[type="text"] {
-    float: right;
-    margin: 0px;
-}
-
-div#ticker {
-    width: 290px;
-    height: 22px;
-    display: flex;
-    border-radius: 2px;
-    border: 1px #5a5a5a;
-    background: #bbbbbb;
-    padding: 0px;
-    font-size: 11pt;
-    margin-bottom: 8px;
-}
-div#ticker label {
-    margin: 2px;
-}
-div#ticker select {
-    height: 22px;
+    margin-left: 50px;
 }

@@ -1,10 +1,10 @@
 <!doctype html>
 <head>
-    <script src="./static/js/jquery-3.3.1.slim.min.js"></script>
+    <script src="/code/static/js/jquery-3.3.1.slim.min.js"></script>
     <script type="text/javascript">
        var rating = {{ data.current_rating|tojson }};
    </script>
-    <link href="./static/css/report.css" rel="stylesheet">
+    <link href="/code/static/css/pdf_report.css" rel="stylesheet">
 </head>
 <body>
     <script>
@@ -17,7 +17,7 @@
         window.onload = setBarPosition;
     </script>
     <div id="header">
-        <img id="logo" src="./static/img/rebirth_title.png">
+        <img id="logo" src="/code/static/img/rebirth_title.png">
         <div id="headerRight">
             <div>Corporate Financial Health Report</div>
             <div>Dated: {{data.date_generated}}</div>

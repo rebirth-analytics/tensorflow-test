@@ -116,7 +116,7 @@ def getAddressFor(symbol):
 
     return "{0} {1}".format(address, loc)
 
-def resiliencyFromDict(dict):
+def getResiliencyFromDict(dict):
     return float(int(dict['totalDebt']) / int(dict['sales']))
 
 def getResiliencyFor(symbol, index=0, total_debt = 0):
@@ -175,12 +175,15 @@ def getFinDict(symbol, index=0):
 
 def getBankruptFromDict(dic):
     if dic is not None:
+        """
         x_int = lambda d, k: 0 if k not in d or d[k] is None else int(d[k]) / scaling_factor
         fields = ['totalLiabilities','currentLiabilities','prevCurrentLiabilities','currentAssets',
             'prevCurrentAssets','totalAssets','netIncome','prevNetIncome','totalCashFromOperatingActivities']
         for field in fields:
             dic[field] = x_int(dic, field)
-        dic['workingCapital'] = dic['currentAssets'] - dic['currentLiabilities']
+        """
+        if (dic['workingCapital'] == -1):
+            dic['workingCapital'] = dic['currentAssets'] - dic['currentLiabilities']
         dic['changeInWorkingCapital'] = dic['workingCapital'] - (dic['prevCurrentAssets'] - dic['prevCurrentLiabilities'])
         dic['fundsFromOps'] = dic['totalCashFromOperatingActivities'] - dic['changeInWorkingCapital']
         return oscoreFromDict(dic)
@@ -234,16 +237,14 @@ def oscoreFromDict(dict):
     if (dict['netIncome'] + dict['prevNetIncome']) < 0:
         Y = 1
     o_score = -1.32 - (.407 * math.log(dict['totalAssets'] / gnp)) \
-        + (6.03 * (dict['totalLiabilities'] / dict['totalAssets'])) \
-        - (1.43 * (dict['workingCapital'] / dict['totalAssets'])) \
-        - (.0757 * (dict['currentLiabilities'] / dict['currentAssets'])) \
+        + (6.03 * float(dict['totalLiabilities'] / dict['totalAssets'])) \
+        - (1.43 * float(dict['workingCapital'] / dict['totalAssets'])) \
+        - (.0757 * float(dict['currentLiabilities'] / dict['currentAssets'])) \
         - (1.72 * X) \
-        - (2.37 * (dict['fundsFromOps'] / dict['totalLiabilities'])) \
+        - (2.37 * float(dict['fundsFromOps'] / dict['totalLiabilities'])) \
         + (.285 * Y) \
-        - (.521 * ((dict['netIncome'] - dict['prevNetIncome']) / (math.fabs(dict['netIncome']) + math.fabs(dict['prevNetIncome']))))
+        - (.521 * float((dict['netIncome'] - dict['prevNetIncome']) / (math.fabs(dict['netIncome']) + math.fabs(dict['prevNetIncome']))))
     return o_score
-
-    return -1
 
 def getIndustryFor(symbol):
     yahoo_url = getModuleUrlFor(symbol, "assetProfile")
