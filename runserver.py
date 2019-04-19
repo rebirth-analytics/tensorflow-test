@@ -3,13 +3,16 @@ This script runs the FlaskWebProject application using a development server.
 """
 
 from os import environ, remove
-from flask import Flask, jsonify, request, render_template, make_response, abort
+from flask import Flask, jsonify, request, render_template, make_response, abort, send_file
+from io import BytesIO
 from xlrd import open_workbook, XLRDError
 from lib import nn_predict
 from lib import company_data
 from lib import db_utils
+import time
 import datetime
 import math
+import zipfile
 import pdfkit
  
 app = Flask(__name__)
@@ -110,40 +113,43 @@ def rate_symbol():
 
 def get_dict_from_args(rargs):
     rdict = {}
-    rdict['totalAssets'] = rargs.get('totalAssets', default=0, type = int)
-    rdict['totalLiabilities'] = rargs.get('totalLiabilities', default=0, type = int)
-    rdict['currentAssets'] = rargs.get('currentAssets', default=0, type = int)
-    rdict['prevCurrentAssets'] = rargs.get('prevCurrentAssets', default=0, type = int)
-    rdict['currentLiabilities'] = rargs.get('currentLiabilities', default=0, type = int)
-    rdict['prevCurrentLiabilities'] = rargs.get('prevCurrentLiabilities', default=0, type = int)
-    rdict['shareholderEquity'] = rargs.get('shareholderEquity', default=0, type = int)
-    rdict['longTermDebt'] = rargs.get('longTermDebt', default=0, type = int)
-    rdict['fixedAssets'] = rargs.get('fixedAssets', default=0, type = int)
-    rdict['depreciation'] = rargs.get('depreciation', default=0, type = int)
-    rdict['interestExpense'] = rargs.get('interestExpense', default=0, type = int)
+    rdict['address'] = rargs.get('address', default='(Not Given)', type = str)
+    rdict['company'] = rargs.get('company', default='(Not Given)', type = str)
+    rdict['industry'] = rargs.get('industry', default='(Not Given)', type = str)
+    rdict['period'] = rargs.get('period', default='(Not Given)', type = str)
+    rdict['totalAssets'] = rargs.get('totalAssets', default=0, type = float)
+    rdict['totalLiabilities'] = rargs.get('totalLiabilities', default=0, type = float)
+    rdict['currentAssets'] = rargs.get('currentAssets', default=0, type = float)
+    rdict['prevCurrentAssets'] = rargs.get('prevCurrentAssets', default=0, type = float)
+    rdict['currentLiabilities'] = rargs.get('currentLiabilities', default=0, type = float)
+    rdict['prevCurrentLiabilities'] = rargs.get('prevCurrentLiabilities', default=0, type = float)
+    rdict['shareholderEquity'] = rargs.get('shareholderEquity', default=0, type = float)
+    rdict['longTermDebt'] = rargs.get('longTermDebt', default=0, type = float)
+    rdict['fixedAssets'] = rargs.get('fixedAssets', default=0, type = float)
+    rdict['depreciation'] = rargs.get('depreciation', default=0, type = float)
+    rdict['interestExpense'] = rargs.get('interestExpense', default=0, type = float)
     rdict['equityReturn'] = rargs.get('equityReturn', default=0, type = float)
-    rdict['operatingIncome'] = rargs.get('operatingIncome', default=0, type = int)
-    rdict['capEx'] = rargs.get('capEx', default=0, type = int)
-    rdict['inventoryChange'] = rargs.get('inventoryChange', default=0, type = int)
-    rdict['totalDebt'] = rargs.get('totalDebt', default=0, type = int)
-    rdict['netIncome'] = rargs.get('netIncome', default=0, type = int)
-    rdict['prevNetIncome'] = rargs.get('prevNetIncome', default=0, type = int)
-    rdict['operatingExpense'] = rargs.get('operatingExpense', default=0, type = int)
-    rdict['sales'] = rargs.get('sales', default=0, type = int)
-    rdict['workingCapital'] = rargs.get('workingCapital', default=-1, type = int)
-    rdict['totalCashFromOperatingActivities'] = rargs.get('totalCashFromOperatingActivities', default=0, type = int)
+    rdict['operatingIncome'] = rargs.get('operatingIncome', default=0, type = float)
+    rdict['capEx'] = rargs.get('capEx', default=0, type = float)
+    rdict['inventoryChange'] = rargs.get('inventoryChange', default=0, type = float)
+    rdict['totalDebt'] = rargs.get('totalDebt', default=0, type = float)
+    rdict['netIncome'] = rargs.get('netIncome', default=0, type = float)
+    rdict['prevNetIncome'] = rargs.get('prevNetIncome', default=0, type = float)
+    rdict['operatingExpense'] = rargs.get('operatingExpense', default=0, type = float)
+    rdict['sales'] = rargs.get('sales', default=0, type = float)
+    rdict['workingCapital'] = rargs.get('workingCapital', default=-1, type = float)
+    rdict['totalCashFromOperatingActivities'] = rargs.get('totalCashFromOperatingActivities', default=0, type = float)
     return rdict
 
 def get_data_from_args(args):
-    address = args.get('address', default='(Not Given)', type = str)
-    company = args.get('company', default='(Not Given)', type = str)
-    industry = args.get('industry', default='(Not Given)', type = str)
-    report_period = args.get('period', default='(Not Given)', type = str)
     rdict = get_dict_from_args(args)
+    return get_data_from_dict(rdict)
+
+def get_data_from_dict(rdict):
     rating = nn_predict.rateFromDict(rdict)
     average = -1
-    if industry is not None and str(industry) != 'nan' and industry != "Unknown":
-        average = company_data.getAverageForIndustry(industry)
+    if rdict['industry'] is not None and str(rdict['industry']) != 'nan' and rdict['industry'] != "Unknown":
+        average = company_data.getAverageForIndustry(rdict['industry'])
     oscore = nn_predict.getBankruptFromDict(rdict)
     ep = math.exp(oscore)
     bankruptcy_prob = round(float(ep / (1 + ep)), 3) * 100
@@ -152,12 +158,12 @@ def get_data_from_args(args):
         'rating_change': 0,
         'is_public': 0,
         'date_generated': datetime.datetime.today(),
-        'report_period': report_period,
-        'address': address,
+        'report_period': rdict['period'],
+        'address': rdict['address'],
         'resiliency_ratio': resiliency,
         'default_probability': bankruptcy_prob,
-        'company_name': company,
-        'industry': industry, 
+        'company_name': rdict['company'],
+        'industry': rdict['industry'], 
         'industry_rating': average}
     return data
 
@@ -193,6 +199,7 @@ def rating_result_OLD():
     #data = {'rating': str(rating), 'windows_ratio': windows_ratio, 'sql_ratio': sql_ratio, 'office_ratio': office_ratio}
     data = {'rating': str(90), 'windows_ratio': windows_ratio, 'sql_ratio': sql_ratio, 'office_ratio': office_ratio}
     return render_template('result.html', data=data)
+
 @app.route('/rate_excel', methods = ['GET', 'POST'])
 def rate_excel():
     data = {'rating': '0', 'test': ''}
@@ -206,19 +213,31 @@ def rate_excel():
         max_row = s.nrows
         row_count = max_row - 1
         rating = 0
-        for row in range(1, max_row):
-            row_dict = {}
-            for name, col in zip(col_names, range(s.ncols)):
-                value  = (s.cell(row,col).value)
-                try : value = float(value)
-                except : pass
-                row_dict[name.value] = value
-            try: rating += int(nn_predict.rateFromDict(row_dict))
-            except : 
-                print("Error calling nn_predict.rateFromDict()")
-                pass
-        data = {'rating': str(float(rating / row_count)), 'test': test_string}
-        return render_template('excel_result.html', data=data)
+        memory_file = BytesIO()
+        with zipfile.ZipFile(memory_file, 'w') as zf:
+            #Create pdf for each row
+            for row in range(1, max_row):
+                row_dict = {}
+                for name, col in zip(col_names, range(s.ncols)):
+                    value  = (s.cell(row,col).value)
+                    if name.value in ['period','address', 'company', 'industry']:
+                        row_dict[name.value] = str(value)
+                    else:
+                        try : value = float(value)
+                        except : pass
+                        row_dict[name.value] = value
+
+                pdf = None
+                data = get_data_from_dict(row_dict)
+                rendered_template = render_template('pdf_result.html', data=data) 
+                pdf = pdfkit.from_string(rendered_template, False)
+
+                zdata = zipfile.ZipInfo('{}_rating_report.pdf'.format(row_dict['company']))
+                zdata.date_time = time.localtime(time.time())[:6]
+                zdata.compress_type = zipfile.ZIP_DEFLATED
+                zf.writestr(zdata, pdf)
+        memory_file.seek(0)
+        return send_file(memory_file, attachment_filename='reports.zip', as_attachment=True)
 
 @app.route('/')
 def home():

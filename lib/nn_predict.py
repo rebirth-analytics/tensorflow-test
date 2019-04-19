@@ -339,6 +339,10 @@ def rateFromDict(dict):
     if 'currentRatio' not in dict:
         dict['currentRatio'] = int(dict['currentAssets']) / int(dict['currentLiabilities'])
     timesInterestEarned = int(dict['operatingIncome']) / int_expense
+    if int(dict['capEx']) == 0 and int(dict['operatingExpense']) != 0:
+        dict['capEx'] = dict['operatingExpense'] #capEx should never be zero
+    if int(dict['netIncome']) == 0:
+        dict['netIncome'] = -1
     incomeCapexRatio = (int(dict['netIncome']) + int(dict['depreciation'])) / (int(dict['capEx']) + int(dict['inventoryChange']))
     debtIncomeRatio = int(dict['totalDebt']) / int(dict['netIncome'])
     arr = [totalRatio, float(dict['currentRatio']), equityAssetRatio, float(dict['equityReturn']),
