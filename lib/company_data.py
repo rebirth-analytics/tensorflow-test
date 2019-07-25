@@ -2,6 +2,7 @@ import pandas as pd
 import math
 
 averages_df = pd.read_csv('lib/industry_averages.csv')
+stddev_df = pd.read_csv('lib/industry_stddev.csv')
 sec_df = pd.read_csv('lib/secwiki_tickers.csv')
 cache_df = pd.read_csv('lib/ticker_cache.csv')
 
@@ -25,7 +26,7 @@ def getAverageFor(symbol):
     if not df.empty:
         industry = df.iloc[0].Industry
         return averages_df[averages_df.Industry == industry].iloc[0].CurrentRating
-    return "Industry Not Found"
+    return 0
 
 def getAverageForIndustry(industry):
     return averages_df[averages_df.Industry == industry].iloc[0].CurrentRating

@@ -12,7 +12,8 @@ body {
     font-size: 16pt;
     --title-background-color: #432a76;
     --row-width: 780px;
-    --box-width: 370px;
+    --rating-width: 800px;
+    --box-width: 380px;
     background-color: white;
     --rating-border-color: slateblue;
     --font-normal: Georgia, 'Times New Roman', Times, serif;
@@ -119,12 +120,14 @@ body div#explanation h2{
 body div#secondaryRatings div.ratingInfoRow div{
     width: var(--box-width);
     justify-content: center;
-    margin-right: 140px;
-    margin-left: 30px;
+    margin-right: 70px;
+    margin-left: 70px;
 }
 body div#secondaryRatings div.ratingInfoRow div.subtext{
     font-size: 18px;
     text-align: center;
+    margin-left: 45px;
+    margin-right: 50px;
 }
 
 body div#secondaryRatings div.ratingInfoRow{
@@ -159,6 +162,11 @@ body div#ratingGraphic div h2 {
     font-family: var(--font-normal);
     font-weight: normal;
     margin-left: 60px;
+}
+
+body img#ratingArrow {
+    display: none;
+    position: absolute
 }
 
 div#ticker input[type="text"] {

@@ -38,6 +38,21 @@ def getIndustries(source_df):
     out_df = pd.DataFrame(rows_list, columns=['Ticker', 'Name', 'Rating', 'Industry'])  
     out_df.to_csv('tickers_industries_updated.csv')
 
+def get_all_data_for_row(row):
+    d = None
+    address = nn_predict.getAddressFor(row['Ticker'])
+    if address is not None:
+        try:
+            #if row['Ticker'] == 'APLT':
+                #print("")
+            d = nn_predict.pullDataFor(row['Ticker'])
+            if d is not None:
+                d['Address'] = address
+        except Exception as e: 
+            print("rating " + str(e) + " ticker: {0}".format(row['Ticker']))
+            pass
+    return d
+
 def generate_aux_data(source_df):
     rows_list = []
     for i, row in source_df.iterrows():
@@ -97,29 +112,20 @@ def generate_ratings(source_df):
     """
     rows_list = []
     for i, row in source_df.iterrows():
-        #current_progress = 5638
-        #if i < current_progress:
-            #continue
-        ticker = row['Ticker']
-        industry = ''
-        dict1 = {'Ticker': ticker, 'Name': row['Name'],'Year':row['Year'], 'Rating': '-1', 'Industry': industry, 'TotalDebt': row['TotalDebt']}
-        try: 
-            industry = nn_predict.getIndustryFor(ticker)
-            if industry is not None and len(industry) > 0 and str(industry) is not "nan":
-                dict1 = {'Ticker': ticker, 'Name': row['Name'], 'Rating': '-1', 'Industry': industry, 'TotalDebt': row['TotalDebt']}
-            else:
-                industry = ''
+        if i % 100 == 0:
+            print(str(i))
+        d = get_all_data_for_row(row) 
+        if d is not None:
+            d['Ticker'] = row['Ticker']
+            d['Name'] = row['Name']
+            d['Industry'] = row['Industry']
+            d['Year'] = '2018'
+            rows_list.append(d)
+    
+    rows_list = nn_predict.rate_arrays(rows_list)
 
-            index = 2018 - int(row['Year'])
-            rating = int(nn_predict.pullDataFor(ticker, index, row['TotalDebt']))
-            dict1 = {'Ticker': ticker, 'Name': row['Name'],'Year':row['Year'], 'Rating': rating, 'Industry': industry, 'TotalDebt': row['TotalDebt']}
-        except Exception as e: 
-            print("rating " + str(e) + " ticker: {0}".format(row['Ticker']))
-            pass
-        rows_list.append(dict1)
-
-    out_df = pd.DataFrame(rows_list, columns=['Ticker', 'Name','Year', 'Rating', 'Industry', 'TotalDebt'])  
-    out_df.to_csv('axe_ratings.csv')
+    out_df = pd.DataFrame(rows_list, columns=['Ticker', 'Name','Year', 'Rating', 'Industry', 'Address', 'Resiliency', 'DefaultProb', 'ReportDate'])  
+    out_df.to_csv('new_ipo_ratings.csv', index=False)
 
 
 def csv_to_json(in_file, out_file):
@@ -135,14 +141,10 @@ def csv_to_json(in_file, out_file):
         json.dump(row, jsonfile)
         jsonfile.write('\n')
 
-if __name__ == '__main__':
-    #generate_aux_data(company_data.getData('lib/ticker_cache.csv'))
-    #generate_aux_data(company_data.getData('air_ratings.csv'))
-    #generate_ratings(company_data.getData('lib/avista.csv'))
-    #generate_aux_data(company_data.getData('axe_ratings.csv'))
+def rate_csv_rows(path_to_file):
     import csv
     import math
-    with open('sabre.csv') as f:
+    with open(path_to_file) as f:
         for row in csv.DictReader(f):
             rating = nn_predict.rateFromDict(row)
             print("{0}: rating {1}".format(row['Name'], rating))
@@ -156,5 +158,12 @@ if __name__ == '__main__':
             prob = round(float(ep / (1 + ep)), 3) * 100
             print("Default Prob: {0}".format(str(prob)))
 
+
+if __name__ == '__main__':
+    #generate_aux_data(company_data.getData('lib/ticker_cache.csv'))
+    #generate_aux_data(company_data.getData('air_ratings.csv'))
+    generate_ratings(company_data.getData('lib/new_ipos.csv'))
+    #generate_ratings(company_data.getData('lib/test_bad.csv'))
+    #generate_aux_data(company_data.getData('axe_ratings.csv'))
     #csv_to_json('lib/ticker_cache.csv', 'ticker_cache.json')
     #filterDF()

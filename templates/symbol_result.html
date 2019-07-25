@@ -16,13 +16,40 @@
                 window.location.assign("/rate_symbol?symbol=" + newTicker);
             }
         }
-        function setBarPosition() {
-            var elem = document.getElementById('frontBar');
-            elem.style.left = ((60 * rating) + 100).toString() + 'px';
-            elem.style.top = (elem.offsetTop + 30).toString() + 'px';
+        function setArrowPosition() {
+            var elem = document.getElementById('ratingArrow');
+            var d = {1:714,2:622,3:547,4:490,5:460,6:460,7:490,8:547,9:622};
+            var left_edge = 68;
+            var right_edge = 701;
+            var bottom = 757;
+            var top = 455;
+            var horz_radius = (right_edge - left_edge) / 2;
+            var vert_radius = bottom - top;
+            if(rating <= 0) {
+                elem.style.left = left_edge.toString() + 'px';
+                elem.style.top = bottom.toString() + 'px';
+            }
+            else if (rating >= 10) {
+                elem.style.transform = 'rotate(180deg)';
+                elem.style.left = right_edge.toString() + 'px';
+                elem.style.top = '759px';
+            }
+            else {
+                var rotation = (9 + ((rating - 1) * 18));
+                var angle = Math.PI - ((rotation * Math.PI) / 180);
+                var horz_pos = (left_edge + horz_radius + (Math.cos(angle) * horz_radius)).toString() + 'px';
+                var vert_pos = (bottom - (Math.sin(angle) * vert_radius)).toString() + 'px';
+                elem.style.left = horz_pos;
+                elem.style.top = vert_pos;
+                elem.style.transform = 'rotate(' + rotation.toString() + 'deg)';
+                //elem.style.left = ((60 * rating) + 100).toString() + 'px';
+                //elem.style.top = (elem.offsetTop + 30).toString() + 'px';
+            } 
+            elem.style.display = 'inline';
         }
-        window.onload = setBarPosition;
+        window.onload = setArrowPosition;
     </script>
+    <img id="ratingArrow" src="static/img/rating_arrow.png">
     <div id="ticker">
         <label>Get Rating For:</label>
         <input type="text" id="tickerInput" onkeyup="handle(event.key)">
@@ -32,7 +59,7 @@
         </select>
     </div>
     <div id="header">
-        <img id="logo" src="static/img/rebirth_title.png">
+        <a href="https://rebirthanalytics.com"><img id="logo" src="static/img/rebirth_title.png"></a>
         <div id="headerRight">
             <div>Corporate Financial Health Report</div>
             <div>Dated: {{data.date_generated}}</div>
@@ -59,7 +86,7 @@
     </div>
     <div id="ratingGraphic">
         <div>
-            <h2>Industry Average Financial Health Score: {{ data.industry_rating }}</h2>
+            <h2>Industry Average Financial Health Score: {{ '{0:0.2f}'.format(data.industry_rating) }}</h2>
         </div>
         <div id="backImage">
             <div id="ratingNumber">

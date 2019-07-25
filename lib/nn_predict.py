@@ -11,6 +11,9 @@ saver = tf.train.import_meta_graph(checkpoint_path + ".meta", import_scope=None)
 rating_cache = {}
 base_query_url = "https://query2.finance.yahoo.com/v10/finance/quoteSummary/"
 scaling_factor = 1000
+export_dir = './tmp/'
+checkpoint_path = tf.train.latest_checkpoint(export_dir)
+saver = tf.train.import_meta_graph(checkpoint_path + ".meta", import_scope=None)
 
 """
 def load_graph():
@@ -27,9 +30,6 @@ def load_graph():
 def rate(arr):
     try:
         rating = -1
-        export_dir = './tmp/'
-        checkpoint_path = tf.train.latest_checkpoint(export_dir)
-        saver = tf.train.import_meta_graph(checkpoint_path + ".meta", import_scope=None)
         with tf.Session() as sess:
             saver.restore(sess, checkpoint_path)
             output = sess.run("predict/prediction:0", feed_dict={"predict/X:0": [arr]})
@@ -38,20 +38,16 @@ def rate(arr):
     except Exception as e:
         print(str(e))
 
-def rate_arrays(arr_list):
-    rating_list = []
+def rate_arrays(row_list):
+    out_list = []
     try:
-        rating = -1
-        export_dir = './tmp/'
-        checkpoint_path = tf.train.latest_checkpoint(export_dir)
-        saver = tf.train.import_meta_graph(checkpoint_path + ".meta", import_scope=None)
         with tf.Session() as sess:
             saver.restore(sess, checkpoint_path)
-            for arr in arr_list:
-                output = sess.run("predict/prediction:0", feed_dict={"predict/X:0": [arr]})
-                rating = np.asscalar(output[0])
-                rating_list.add(str(rating))
-        return rating_list
+            for row in row_list:
+                output = sess.run("predict/prediction:0", feed_dict={"predict/X:0": [row['arr']]})
+                row['Rating'] = np.asscalar(output[0])
+                out_list.append(row)
+        return out_list
     except Exception as e:
         print(str(e))
 
@@ -117,6 +113,8 @@ def getAddressFor(symbol):
     return "{0} {1}".format(address, loc)
 
 def getResiliencyFromDict(dict):
+    if 'sales' not in dict or int(dict['sales']) == 0:
+        return -1
     return float(int(dict['totalDebt']) / int(dict['sales']))
 
 def getResiliencyFor(symbol, index=0, total_debt = 0):
@@ -136,10 +134,12 @@ def getResiliencyFor(symbol, index=0, total_debt = 0):
                 if f_dict['quoteSummary']['error'] is not None:
                     return -1 
                 fin_data = f_dict['quoteSummary']['result'][0]['financialData']
-                if 'totalDebt' in fin_data:
+                if 'totalDebt' in fin_data and 'raw' in fin_data['totalDebt']:
                     total_debt  = int(fin_data['totalDebt']['raw'] / scaling_factor)
                 else:
-                    return -1 
+                    yahoo_balance_url = getModuleUrlFor(symbol, "balanceSheetHistory")
+                    b_dict = requests.get(yahoo_balance_url).json()['quoteSummary']['result'][0]['balanceSheetHistory']['balanceSheetStatements'][0]
+                    total_debt  = int(b_dict['totalLiab']['raw'] / scaling_factor)
             else:
                 total_debt = total_debt / scaling_factor
 
@@ -149,19 +149,17 @@ def getResiliencyFor(symbol, index=0, total_debt = 0):
     return -1
 
 def getFinDict(symbol, index=0):
-    import datetime
     fin_dict = {}
-    currentYear = datetime.datetime.now().year
-    prevYear = int(currentYear) - 2
+    index = 0
     yahoo_balance_url = getModuleUrlFor(symbol, "balanceSheetHistory")
     b_history = requests.get(yahoo_balance_url).json()['quoteSummary']['result'][0]['balanceSheetHistory']['balanceSheetStatements']
     if len(b_history) < 3 or 'totalCurrentLiabilities' not in b_history[index] or 'totalCurrentAssets' not in b_history[index] or 'totalCurrentLiabilities' not in b_history[index + 1]:
         return None
+    if int(b_history[0]['endDate']['fmt'].split("-")[0]) < 2018:
+        return None
     
     fin_dict['b0'] = b_history[index]
     fin_dict['b1'] = b_history[index + 1]
-    #if int(b_history[0]['endDate']['fmt'].split("-")[0]) == prevYear:
-    #    fin_dict['b1'] = b_history[index]
 
     yahoo_cash_url = getModuleUrlFor(symbol, "cashflowStatementHistory")
     cash_hist = requests.get(yahoo_cash_url).json()['quoteSummary']['result'][0]['cashflowStatementHistory']['cashflowStatements']
@@ -169,8 +167,6 @@ def getFinDict(symbol, index=0):
         return None
     fin_dict['c0'] = cash_hist[index]
     fin_dict['c1'] = cash_hist[index + 1]
-    #if int(cash_hist[0]['endDate']['fmt'].split("-")[0]) == prevYear:
-    #    fin_dict['c1'] = cash_hist[index]
     return fin_dict
 
 def getBankruptFromDict(dic):
@@ -188,10 +184,11 @@ def getBankruptFromDict(dic):
         dic['fundsFromOps'] = dic['totalCashFromOperatingActivities'] - dic['changeInWorkingCapital']
         return oscoreFromDict(dic)
 
-def getBankruptFor(symbol, index=0, dic={}):
+def getBankruptFor(symbol, index=0, b_dic={}):
     """
         Calculate Ohlson O-score for a company
     """
+    dic = {}
     d = getFinDict(symbol, index)
     if d is not None:
         b_dict = d['b0']
@@ -262,27 +259,30 @@ def pullDataFor(symbol, index = 0, total_debt=0):
     """
 
     data_dict = {}
-    data_dict['totalDebt'] = int(total_debt) / scaling_factor
-    if int(total_debt) == 0:
-        yahoo_fin_url="https://query2.finance.yahoo.com/v10/finance/quoteSummary/{0}?modules=financialData".format(symbol)
-        fin_dict = requests.get(yahoo_fin_url).json()
-        if fin_dict['quoteSummary']['error'] is not None:
-            return -1
-        fin_stats_dict = fin_dict['quoteSummary']['result'][0]['financialData']
-        data_dict['totalDebt'] = int(fin_stats_dict['totalDebt']['raw'] / scaling_factor)
-
+    yahoo_fin_url="https://query2.finance.yahoo.com/v10/finance/quoteSummary/{0}?modules=financialData".format(symbol)
+    fin_dict = requests.get(yahoo_fin_url).json()
+    if fin_dict['quoteSummary']['error'] is not None:
+        return None
     yahoo_balance_url="https://query2.finance.yahoo.com/v10/finance/quoteSummary/{0}?modules=balanceSheetHistory".format(symbol)
     b_history = requests.get(yahoo_balance_url).json()['quoteSummary']['result'][0]['balanceSheetHistory']['balanceSheetStatements']
-    if len(b_history) < (index + 2) or 'totalCurrentLiabilities' not in b_history[index]:
-        return -1
+    if len(b_history) < (index + 2) or 'totalCurrentLiabilities' not in b_history[index] or int(b_history[index]['endDate']['fmt'][:4]) < 2018:
+        return None
 
     b_dict = b_history[index]
     yahoo_income_url="https://query2.finance.yahoo.com/v10/finance/quoteSummary/{0}?modules=incomeStatementHistory".format(symbol)
     income_dict = requests.get(yahoo_income_url).json()['quoteSummary']['result'][0]['incomeStatementHistory']['incomeStatementHistory'][index]
     yahoo_cash_url="https://query2.finance.yahoo.com/v10/finance/quoteSummary/{0}?modules=cashflowStatementHistory".format(symbol)
-    cash_dict = requests.get(yahoo_cash_url).json()['quoteSummary']['result'][0]['cashflowStatementHistory']['cashflowStatements'][index]
+    c_dict = requests.get(yahoo_cash_url).json()['quoteSummary']['result'][0]['cashflowStatementHistory']['cashflowStatements']
+    cash_dict = c_dict[0]
+    prev_cash_dict = c_dict[1]
     x_int = lambda d, k: 0 if k not in d or d[k] is None else int(d[k]) / scaling_factor
     data_dict['totalLiabilities'] = int(b_dict['totalLiab']['raw']) / scaling_factor
+
+    fin_stats_dict = fin_dict['quoteSummary']['result'][0]['financialData']
+    if 'totalDebt' in fin_stats_dict and 'raw' in fin_stats_dict['totalDebt']:
+        data_dict['totalDebt'] = int(fin_stats_dict['totalDebt']['raw'] / scaling_factor)
+    else:
+        data_dict['totalDebt'] = data_dict['totalLiabilities']
     data_dict['currentLiabilities'] = x_int(b_dict['totalCurrentLiabilities'],'raw')
     data_dict['currentAssets'] = int(b_dict['totalCurrentAssets']['raw']) / scaling_factor
     data_dict['totalAssets'] = x_int(b_dict['totalAssets'], 'raw') 
@@ -293,6 +293,7 @@ def pullDataFor(symbol, index = 0, total_debt=0):
         data_dict['longTermDebt'] = x_int(b_dict['longTermDebt'], 'raw') 
     data_dict['interestExpense'] = x_int(income_dict['interestExpense'],'raw')
     data_dict['netIncome'] = int(income_dict['netIncome']['raw'] / scaling_factor)
+    data_dict['prevNetIncome'] = int(prev_cash_dict['netIncome']['raw'] / scaling_factor)
     data_dict['operatingExpense'] = int(income_dict['totalOperatingExpenses']['raw'] / scaling_factor)
     data_dict['sales'] = int(income_dict['totalRevenue']['raw'] / scaling_factor)
     data_dict['operatingIncome'] = int(income_dict['operatingIncome']['raw'] / scaling_factor) + data_dict['interestExpense']
@@ -301,7 +302,7 @@ def pullDataFor(symbol, index = 0, total_debt=0):
     if('propertyPlantEquipment' in b_dict):
         data_dict['fixedAssets'] = x_int(b_dict['propertyPlantEquipment'], 'raw')
 
-    data_dict['depreciation'] = 104000
+    data_dict['depreciation'] = 1
     if('depreciation' in b_dict):
         data_dict['depreciation'] = x_int(cash_dict['depreciation'], 'raw')
 
@@ -309,20 +310,29 @@ def pullDataFor(symbol, index = 0, total_debt=0):
     if('capitalExpenditures' in cash_dict):
         data_dict['capEx'] = x_int(cash_dict['capitalExpenditures'], 'raw') 
 
+    data_dict['totalCashFromOperatingActivities'] = x_int(cash_dict['totalCashFromOperatingActivities'], 'raw') 
     data_dict['inventoryChange'] = 0
+    prev_b_dict = b_history[index + 1]
     if 'inventory' in b_dict and 'raw' in b_dict['inventory']:
-        prev_b_dict = b_history[index + 1]
         if 'inventory' in prev_b_dict and 'raw' in prev_b_dict['inventory']:
             data_dict['inventoryChange'] = x_int(b_dict['inventory'], 'raw') - x_int(prev_b_dict['inventory'], 'raw')
+    data_dict['prevCurrentLiabilities'] = x_int(prev_b_dict['totalCurrentLiabilities'],'raw')
+    data_dict['prevCurrentAssets'] = int(prev_b_dict['totalCurrentAssets']['raw']) / scaling_factor
     
+    data_dict['workingCapital'] = data_dict['currentAssets'] - data_dict['currentLiabilities']
+    data_dict['changeInWorkingCapital'] = data_dict['workingCapital'] - (data_dict['prevCurrentAssets'] - data_dict['prevCurrentLiabilities'])
+    data_dict['fundsFromOps'] = data_dict['totalCashFromOperatingActivities'] - data_dict['changeInWorkingCapital']
     data_dict['currentRatio'] = float(data_dict['currentAssets'] / data_dict['currentLiabilities'])
 
     data_dict['equityReturn'] = float(data_dict['netIncome'] / data_dict['shareholderEquity'])
 
-    rating_cache[symbol] = rateFromDict(data_dict)
-    return rating_cache[symbol]
+    report_date = b_dict['endDate']['fmt']
+    o_score = oscoreFromDict(data_dict)
+    resiliency = getResiliencyFromDict(data_dict)
+    arr = get_ratings_array_from_dict(data_dict)
+    return { 'arr': arr, 'DefaultProb': o_score, 'Resiliency': resiliency, 'ReportDate': report_date }
 
-def rateFromDict(dict):
+def get_ratings_array_from_dict(dict):
     int_expense = int(dict['interestExpense'])
     if int_expense < 100:
         int_expense = 100
@@ -347,6 +357,10 @@ def rateFromDict(dict):
     debtIncomeRatio = int(dict['totalDebt']) / int(dict['netIncome'])
     arr = [totalRatio, float(dict['currentRatio']), equityAssetRatio, float(dict['equityReturn']),
         timesInterestEarned, incomeCapexRatio, debtIncomeRatio, expenseSalesRatio]
+    return arr
+
+def rateFromDict(dict):
+    arr = get_ratings_array_from_dict(dict)
     return rate(arr)
 
 def get_altman_score(dict):
