@@ -7,13 +7,10 @@ import math
 """Load model from export_dir, predict on input data, expected output is 5."""
 export_dir = './tmp/'
 checkpoint_path = tf.train.latest_checkpoint(export_dir)
-saver = tf.train.import_meta_graph(checkpoint_path + ".meta", import_scope=None)
+saver = tf.compat.v1.train.import_meta_graph(checkpoint_path + ".meta", import_scope=None)
 rating_cache = {}
 base_query_url = "https://query2.finance.yahoo.com/v10/finance/quoteSummary/"
 scaling_factor = 1000
-export_dir = './tmp/'
-checkpoint_path = tf.train.latest_checkpoint(export_dir)
-saver = tf.train.import_meta_graph(checkpoint_path + ".meta", import_scope=None)
 
 """
 def load_graph():

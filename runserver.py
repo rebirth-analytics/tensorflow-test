@@ -1,21 +1,18 @@
-"""
-This script runs the FlaskWebProject application using a development server.
-"""
-
 from os import environ, remove
 from flask import Flask, jsonify, request, render_template, make_response, abort, send_file
 from io import BytesIO
 from xlrd import open_workbook, XLRDError
-from lib import nn_predict
-from lib import company_data
-from lib import db_utils
+from lib import nn_predict, company_data, db_utils, edd_parser
 import time
 import datetime
 import math
 import zipfile
 import pdfkit
+import http
+import pdftotext
  
 app = Flask(__name__)
+session = {}
 
 def test_book(filename):
     try:
@@ -232,7 +229,7 @@ def rate_excel():
                 rendered_template = render_template('pdf_result.html', data=data) 
                 pdf = pdfkit.from_string(rendered_template, False)
 
-                zdata = zipfile.ZipInfo('{}_rating_report.pdf'.format(row_dict['company']))
+                zdata = zipfile.ZipInfo('{0}_{1}_rating_report.pdf'.format(row_dict['company'].replace(",","").replace(".",""), row_dict['period'][-4:]))
                 zdata.date_time = time.localtime(time.time())[:6]
                 zdata.compress_type = zipfile.ZIP_DEFLATED
                 zf.writestr(zdata, pdf)
@@ -249,6 +246,52 @@ def home():
 def batch_rating():
     return render_template('batch_rating.html')
 
+
+@app.route('/edd_helper')
+def edd_helper():
+    return render_template('edd_helper.html')
+
+@app.route('/generate_edd', methods=['POST'])
+def generate_edd():
+    #for key in ['pdf_filename', 'excel_filename']:
+    report_data = process_file(request, 'pdf_filename') 
+    if report_data == {}:
+        abort(500)
+    filename = edd_parser.create_document(report_data)
+    return send_file(filename, attachment_filename=filename, as_attachment=True)
+
+def process_file(request, key):
+    report_data = {}
+    if key not in request.files:
+        print('ERROR')
+    else:
+        f = request.files[key]
+        if f.filename == '':
+            print('ERROR')
+        else:
+            if f:
+                report_filename = f.filename
+                f.save(report_filename)
+                if key == 'pdf_filename':
+                    with open(report_filename, "rb") as in_file:
+                        pdf = pdftotext.PDF(in_file)
+                        title_words = pdf[0].split("\n")[0].split()
+                        if title_words[1] == "EDD" and title_words[2] == "Insight":
+                            if title_words[4] == "Person":
+                                report_data = edd_parser.parse_person_pdf(pdf)
+                            elif title_words[4] == "Company":
+                                report_data = edd_parser.parse_company_pdf(pdf)
+                            else:
+                                print('ERROR - expected Person and Company report, received {} report'.format(title_words[4]))
+                        else:
+                            print('ERROR - expected EDD Insight document, received {} {} document'.format(title_words[1], title_words[2]))
+                else: #excel report
+                    report_data = {'Report': 'Excel'}
+                
+                remove(report_filename)
+                        
+                # validate file now
+    return report_data
 
 if __name__ == '__main__':
     HOST = environ.get('SERVER_HOST', '0.0.0.0')

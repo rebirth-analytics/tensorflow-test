@@ -1,0 +1,28 @@
+<!doctype html>
+<head>
+    <script src="static/js/jquery-3.3.1.slim.min.js"></script>
+    <script src="static/js/form.js"></script>
+    <link href="static/css/form.css" rel="stylesheet">
+</head>
+<body>
+    <img id="logo" src="static/img/rebirth_logo.png" >
+    <br />
+    <br />
+    <form action="/generate_edd" method="POST" enctype="multipart/form-data">
+        <div>
+            <label for="file">Choose Lexis PDF file to process</label>
+            <br />
+            <input type="file" id="file" name="pdf_filename"> 
+        </div>
+        <br />
+        <div style="display:none">
+            <label for="file">Choose Orbis Excel file to process</label>
+            <br />
+            <input type="file" id="file" name="excel_filename"> 
+        </div>
+        <br />
+        <div>
+            <button>Get EDD File</button>
+        </div>
+    </form>
+</body>
