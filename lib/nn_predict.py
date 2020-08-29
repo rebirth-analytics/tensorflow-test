@@ -5,12 +5,10 @@ import requests
 import math
 
 """Load model from export_dir, predict on input data, expected output is 5."""
-export_dir = './tmp/'
-checkpoint_path = tf.train.latest_checkpoint(export_dir)
-saver = tf.compat.v1.train.import_meta_graph(checkpoint_path + ".meta", import_scope=None)
 rating_cache = {}
 base_query_url = "https://query2.finance.yahoo.com/v10/finance/quoteSummary/"
 scaling_factor = 1000
+x_int = lambda d, k, default=0: default if k not in d or d[k] is None else int(d[k]) / scaling_factor
 
 """
 def load_graph():
@@ -28,6 +26,9 @@ def rate(arr):
     try:
         rating = -1
         with tf.Session() as sess:
+            export_dir = './tmp/'
+            checkpoint_path = tf.train.latest_checkpoint(export_dir)
+            saver = tf.compat.v1.train.import_meta_graph(checkpoint_path + ".meta", import_scope=None)
             saver.restore(sess, checkpoint_path)
             output = sess.run("predict/prediction:0", feed_dict={"predict/X:0": [arr]})
             rating = np.asscalar(output[0])
@@ -38,7 +39,10 @@ def rate(arr):
 def rate_arrays(row_list):
     out_list = []
     try:
-        with tf.Session() as sess:
+        with tf.compat.v1.Session() as sess:
+            export_dir = './tmp/'
+            checkpoint_path = tf.train.latest_checkpoint(export_dir)
+            saver = tf.compat.v1.train.import_meta_graph(checkpoint_path + ".meta", import_scope=None)
             saver.restore(sess, checkpoint_path)
             for row in row_list:
                 output = sess.run("predict/prediction:0", feed_dict={"predict/X:0": [row['arr']]})
@@ -216,9 +220,9 @@ def getBankruptFor(symbol, index=0, b_dic={}):
             dic['totalCashFromOperatingActivities'] = x_int(dic,'totalCashFromOperatingActivities')
         dic['fundsFromOps'] = dic['totalCashFromOperatingActivities'] - dic['changeInWorkingCapital']
         if 'netIncome' not in dic:
-            dic['netIncome'] = int(d['c0']['netIncome']['raw']) / scaling_factor
+            dic['oscore_netIncome'] = int(d['c0']['netIncome']['raw']) / scaling_factor
         else:
-            dic['netIncome'] = x_int(dic,'netIncome')
+            dic['oscore_netIncome'] = x_int(dic,'netIncome')
         dic['prevNetIncome'] = int(d['c1']['netIncome']['raw']) / scaling_factor
         return oscoreFromDict(dic)
 
@@ -228,7 +232,9 @@ def oscoreFromDict(dict):
     if dict['totalLiabilities'] > dict['totalAssets']:
         X = 1
     Y = 0
-    if (dict['netIncome'] + dict['prevNetIncome']) < 0:
+    if 'oscore_netIncome' not in dict:
+        dict['oscore_netIncome'] = dict['netIncome']
+    if (dict['oscore_netIncome'] + dict['prevNetIncome']) < 0:
         Y = 1
     o_score = -1.32 - (.407 * math.log(dict['totalAssets'] / gnp)) \
         + (6.03 * float(dict['totalLiabilities'] / dict['totalAssets'])) \
@@ -237,7 +243,7 @@ def oscoreFromDict(dict):
         - (1.72 * X) \
         - (2.37 * float(dict['fundsFromOps'] / dict['totalLiabilities'])) \
         + (.285 * Y) \
-        - (.521 * float((dict['netIncome'] - dict['prevNetIncome']) / (math.fabs(dict['netIncome']) + math.fabs(dict['prevNetIncome']))))
+        - (.521 * float((dict['oscore_netIncome'] - dict['prevNetIncome']) / (math.fabs(dict['oscore_netIncome']) + math.fabs(dict['prevNetIncome']))))
     return o_score
 
 def getIndustryFor(symbol):
@@ -247,8 +253,17 @@ def getIndustryFor(symbol):
         return None
 
     return profile_dict['quoteSummary']['result'][0]['assetProfile']['industry']
+
+def getTotalFromQuarterly(fin_dict, key, default=0):
+    if len(fin_dict) > 3:
+        total = 0
+        for i in range(4):
+            total += x_int(fin_dict[i][key], 'raw')
+        return total
+    else:
+        return default
     
-def pullDataFor(symbol, index = 0, total_debt=0):
+def pullDataFor(symbol, quarterly=False):
     """
         run quarterly over a set of tickers to update current ratings for public companies
     if symbol in rating_cache:
@@ -256,23 +271,39 @@ def pullDataFor(symbol, index = 0, total_debt=0):
     """
 
     data_dict = {}
+    index = 0
+    module_dict = {'balance': 'balanceSheetHistory', 'income':'incomeStatementHistory', 'cash':'cashflowStatementHistory'}
+    if quarterly:
+        for key, value in module_dict.items():
+            module_dict[key] += 'Quarterly'
+
     yahoo_fin_url="https://query2.finance.yahoo.com/v10/finance/quoteSummary/{0}?modules=financialData".format(symbol)
     fin_dict = requests.get(yahoo_fin_url).json()
     if fin_dict['quoteSummary']['error'] is not None:
         return None
-    yahoo_balance_url="https://query2.finance.yahoo.com/v10/finance/quoteSummary/{0}?modules=balanceSheetHistory".format(symbol)
-    b_history = requests.get(yahoo_balance_url).json()['quoteSummary']['result'][0]['balanceSheetHistory']['balanceSheetStatements']
+    yahoo_balance_url="https://query2.finance.yahoo.com/v10/finance/quoteSummary/{0}?modules={1}".format(symbol, module_dict['balance'])
+    b_history = requests.get(yahoo_balance_url).json()['quoteSummary']['result'][0][module_dict['balance']]['balanceSheetStatements']
     if len(b_history) < (index + 2) or 'totalCurrentLiabilities' not in b_history[index] or int(b_history[index]['endDate']['fmt'][:4]) < 2018:
         return None
 
     b_dict = b_history[index]
-    yahoo_income_url="https://query2.finance.yahoo.com/v10/finance/quoteSummary/{0}?modules=incomeStatementHistory".format(symbol)
-    income_dict = requests.get(yahoo_income_url).json()['quoteSummary']['result'][0]['incomeStatementHistory']['incomeStatementHistory'][index]
-    yahoo_cash_url="https://query2.finance.yahoo.com/v10/finance/quoteSummary/{0}?modules=cashflowStatementHistory".format(symbol)
-    c_dict = requests.get(yahoo_cash_url).json()['quoteSummary']['result'][0]['cashflowStatementHistory']['cashflowStatements']
+    base_url="https://query2.finance.yahoo.com/v10/finance/quoteSummary/{0}?modules=".format(symbol)
+    yahoo_income_url="{}{}".format(base_url, module_dict['income'])
+    raw_income_dict = requests.get(yahoo_income_url).json()['quoteSummary']['result'][0][module_dict['income']]['incomeStatementHistory']
+    income_dict = raw_income_dict[index]
+    yahoo_cash_url="{}{}".format(base_url, module_dict['cash'])
+    c_dict = requests.get(yahoo_cash_url).json()['quoteSummary']['result'][0][module_dict['cash']]['cashflowStatements']
     cash_dict = c_dict[0]
     prev_cash_dict = c_dict[1]
-    x_int = lambda d, k: 0 if k not in d or d[k] is None else int(d[k]) / scaling_factor
+
+    yahoo_yearly_cash_url="{}{}".format(base_url, 'cashflowStatementHistory')
+    yearly_c_dict = requests.get(yahoo_yearly_cash_url).json()['quoteSummary']['result'][0]['cashflowStatementHistory']['cashflowStatements'][0]
+
+    data_dict['depreciation'] = 1
+    if 'depreciation' in yearly_c_dict:
+        data_dict['depreciation'] = x_int(yearly_c_dict['depreciation'], 'raw', 1)
+
+    data_dict['totalCashFromOperatingActivities'] = x_int(yearly_c_dict['totalCashFromOperatingActivities'], 'raw') 
     data_dict['totalLiabilities'] = int(b_dict['totalLiab']['raw']) / scaling_factor
 
     fin_stats_dict = fin_dict['quoteSummary']['result'][0]['financialData']
@@ -288,26 +319,33 @@ def pullDataFor(symbol, index = 0, total_debt=0):
         data_dict['longTermDebt'] = data_dict['totalDebt']
     else:
         data_dict['longTermDebt'] = x_int(b_dict['longTermDebt'], 'raw') 
-    data_dict['interestExpense'] = x_int(income_dict['interestExpense'],'raw')
-    data_dict['netIncome'] = int(income_dict['netIncome']['raw'] / scaling_factor)
-    data_dict['prevNetIncome'] = int(prev_cash_dict['netIncome']['raw'] / scaling_factor)
-    data_dict['operatingExpense'] = int(income_dict['totalOperatingExpenses']['raw'] / scaling_factor)
-    data_dict['sales'] = int(income_dict['totalRevenue']['raw'] / scaling_factor)
-    data_dict['operatingIncome'] = int(income_dict['operatingIncome']['raw'] / scaling_factor) + data_dict['interestExpense']
 
     data_dict['fixedAssets'] = 0
     if('propertyPlantEquipment' in b_dict):
         data_dict['fixedAssets'] = x_int(b_dict['propertyPlantEquipment'], 'raw')
 
-    data_dict['depreciation'] = 1
-    if('depreciation' in b_dict):
-        data_dict['depreciation'] = x_int(cash_dict['depreciation'], 'raw')
+    data_dict['oscore_netIncome'] = int(income_dict['netIncome']['raw'] / scaling_factor)
+    data_dict['prevNetIncome'] = int(prev_cash_dict['netIncome']['raw'] / scaling_factor)
 
-    data_dict['capEx'] = 132000
-    if('capitalExpenditures' in cash_dict):
-        data_dict['capEx'] = x_int(cash_dict['capitalExpenditures'], 'raw') 
+    income_key_dict = {'netIncome':'netIncome', 'operatingExpense':'totalOperatingExpenses', 'sales':'totalRevenue', 'interestExpense':'interestExpense', 'rawOpIncome':'operatingIncome'}
+    for key, value in income_key_dict.items():
+        if quarterly:
+            data_dict[key] = getTotalFromQuarterly(raw_income_dict, value)
+        else:
+            data_dict[key] = x_int(income_dict[value],'raw')
 
-    data_dict['totalCashFromOperatingActivities'] = x_int(cash_dict['totalCashFromOperatingActivities'], 'raw') 
+    data_dict['operatingIncome'] = data_dict['rawOpIncome'] + data_dict['interestExpense']
+
+    data_dict['capEx'] = 13200
+    if quarterly:
+        if 'capitalExpenditures' in cash_dict:
+            data_dict['capEx'] = getTotalFromQuarterly(c_dict, 'capitalExpenditures', 13200)
+        if 'totalCashFromOperatingActivities' in cash_dict:
+            data_dict['totalCashFromOperatingActivities'] = getTotalFromQuarterly(c_dict,'totalCashFromOperatingActivities') 
+    else:
+        if 'capitalExpenditures' in cash_dict:
+            data_dict['capEx'] = x_int(cash_dict['capitalExpenditures'], 'raw', 13200) 
+
     data_dict['inventoryChange'] = 0
     prev_b_dict = b_history[index + 1]
     if 'inventory' in b_dict and 'raw' in b_dict['inventory']:
@@ -330,7 +368,7 @@ def pullDataFor(symbol, index = 0, total_debt=0):
     return { 'arr': arr, 'DefaultProb': o_score, 'Resiliency': resiliency, 'ReportDate': report_date }
 
 def get_ratings_array_from_dict(dict):
-    int_expense = int(dict['interestExpense'])
+    int_expense = int(float(dict['interestExpense']))
     if int_expense < 100:
         int_expense = 100
         

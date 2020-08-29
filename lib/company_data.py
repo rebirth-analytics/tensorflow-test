@@ -29,13 +29,22 @@ def getAverageFor(symbol):
     return 0
 
 def getAverageForIndustry(industry):
-    return averages_df[averages_df.Industry == industry].iloc[0].CurrentRating
+    try:
+        return averages_df[averages_df.Industry == industry].iloc[0].CurrentRating
+    except:
+        print(industry)
 
 def getIndustryFor(symbol):
     df = cache_df[cache_df.Ticker == symbol]
     if not df.empty:
         return df.iloc[0].Industry
     return "Ticker Not Found"
+
+def getPreviousRatingFor(symbol):
+    df = cache_df[cache_df.Ticker == symbol]
+    if not df.empty:
+        return df.iloc[0].PreviousRating
+    return -1
 
 def getRatingFor(symbol):
     df = cache_df[cache_df.Ticker == symbol]

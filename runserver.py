@@ -76,8 +76,13 @@ def rate_symbol():
     report_period = get_report_period(year)
     resiliency = .5
     bankruptcy_prob = -1
+    rating_change = 0
     try: 
         rating = int(company_data.getRatingFor(symbol))
+        previous_rating = int(company_data.getPreviousRatingFor(symbol))
+        rating_change = str(rating - previous_rating)
+        if int(rating_change) > 0:
+            rating_change = "+{}".format(rating_change)
         company = "Company Name Not Found"
         company = company_data.getCompanyName(symbol)
         industry = company_data.getIndustryFor(symbol)
@@ -96,7 +101,7 @@ def rate_symbol():
         print("Error calling company_data.getAverageFor()")
         pass
     data = {'current_rating': int(rating), 
-        'rating_change': 0,
+        'rating_change': rating_change,
         'symbol': symbol, 
         'date_generated': datetime.datetime.today(),
         'report_period': report_period,
@@ -148,7 +153,14 @@ def get_data_from_dict(rdict):
     if rdict['industry'] is not None and str(rdict['industry']) != 'nan' and rdict['industry'] != "Unknown":
         average = company_data.getAverageForIndustry(rdict['industry'])
     oscore = nn_predict.getBankruptFromDict(rdict)
-    ep = math.exp(oscore)
+    ep = -0.99
+    bankruptcy_prob = round(float(ep / (1 + ep)), 3) * 100
+    if oscore != 0 and oscore != -1:
+        try:
+            ep = math.exp(oscore)
+        except OverflowError:
+            print("getDefaultProbFor symbol: {}, score: {}".format(rdict['company'], oscore))
+            pass
     bankruptcy_prob = round(float(ep / (1 + ep)), 3) * 100
     resiliency = nn_predict.getResiliencyFromDict(rdict)
     data = {'current_rating': int(rating), 
@@ -208,12 +220,15 @@ def rate_excel():
         s = wb.sheet_by_index(0)
         col_names = s.row(0)
         max_row = s.nrows
+        print("Found {} rows in spreadsheet".format(str(max_row)))
         row_count = max_row - 1
         rating = 0
         memory_file = BytesIO()
         with zipfile.ZipFile(memory_file, 'w') as zf:
             #Create pdf for each row
             for row in range(1, max_row):
+                if s.cell(row,0).value == '':
+                    break
                 row_dict = {}
                 for name, col in zip(col_names, range(s.ncols)):
                     value  = (s.cell(row,col).value)
@@ -249,7 +264,8 @@ def batch_rating():
 
 @app.route('/edd_helper')
 def edd_helper():
-    return render_template('edd_helper.html')
+    #return render_template('edd_helper.html')
+    return "Not Available"
 
 @app.route('/generate_edd', methods=['POST'])
 def generate_edd():
@@ -275,16 +291,16 @@ def process_file(request, key):
                 if key == 'pdf_filename':
                     with open(report_filename, "rb") as in_file:
                         pdf = pdftotext.PDF(in_file)
-                        title_words = pdf[0].split("\n")[0].split()
-                        if title_words[1] == "EDD" and title_words[2] == "Insight":
-                            if title_words[4] == "Person":
-                                report_data = edd_parser.parse_person_pdf(pdf)
-                            elif title_words[4] == "Company":
-                                report_data = edd_parser.parse_company_pdf(pdf)
-                            else:
-                                print('ERROR - expected Person and Company report, received {} report'.format(title_words[4]))
+                        is_personal_pdf = False
+                        for line in pdf[0].split("\n"):
+                            words = line.split()
+                            if len(words) > 2 and words[0] == "Date" and words[2] == "Birth:":
+                               is_personal_pdf = True 
+                               break
+                        if is_personal_pdf:
+                            report_data = edd_parser.parse_person_pdf(pdf)
                         else:
-                            print('ERROR - expected EDD Insight document, received {} {} document'.format(title_words[1], title_words[2]))
+                            report_data = edd_parser.parse_company_pdf(pdf)
                 else: #excel report
                     report_data = {'Report': 'Excel'}
                 

@@ -1,9 +1,13 @@
 FROM debian:buster-slim
 MAINTAINER Glenn Harper "zeigotaro@gmail.com"
 
+RUN apt-get update -y; \
+    apt-get upgrade -y; \
+    apt-get install -y libpoppler-cpp-dev;
 ENV BUILD_PACKAGES="\
         build-essential \
         linux-headers-4.19 \
+        pkg-config \
         python3-dev \
         cmake \
         tcl-dev \
@@ -29,22 +33,22 @@ ENV BUILD_PACKAGES="\
         pymkl \
         pillow \
         Flask \
-        numpy \
         xlrd \
         tensorflow \
+        numpy \
         pandas \
         requests \
         mysql-connector-python-rf \
-        pdfkit" \
-    PYTHON_VERSION=3.7.2 \
+        pdfkit \
+        python-docx \
+        pdftotext" \
+    PYTHON_VERSION=3.7.3 \
     PATH=/usr/local/bin:$PATH \
     PYTHON_PIP_VERSION=18.1 \
     LANG=C.UTF-8
 
 RUN set -ex; 
-RUN apt-get update -y; \
-    apt-get upgrade -y; \
-    apt-get install -y --no-install-recommends ${APT_PACKAGES}; \
+RUN apt-get install -y --no-install-recommends ${APT_PACKAGES}; \
     apt-get install -y --no-install-recommends ${BUILD_PACKAGES};
 
 RUN ln -s /usr/bin/idle3 /usr/bin/idle; \
@@ -79,8 +83,8 @@ EXPOSE 5555
 
 CMD ["python", "./runserver.py"]
 
-ENV DB_PASSWORD="Jeremy's1stATLBurgerAdventure@Ted's"
-ENV DB_USER="rebirthadmin@rebirth-mysql01" 
-ENV DB_HOST="rebirth-mysql01.mysql.database.azure.com"
-ENV DB_SCHEMA="ratings"
-ENV CERT_FILE="static/certs/BaltimoreCyberTrustRoot.crt.pem"
+ENV DB_PASSWORD=<PASSWORD>
+ENV DB_USER=<USER>
+ENV DB_HOST=<HOST>
+ENV DB_SCHEMA=<SCHEMA>
+ENV CERT_FILE=<CERT>
