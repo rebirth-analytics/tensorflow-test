@@ -25,7 +25,7 @@ def load_graph():
 def rate(arr):
     try:
         rating = -1
-        with tf.Session() as sess:
+        with tf.compat.v1.Session() as sess:
             export_dir = './tmp/'
             checkpoint_path = tf.train.latest_checkpoint(export_dir)
             saver = tf.compat.v1.train.import_meta_graph(checkpoint_path + ".meta", import_scope=None)
